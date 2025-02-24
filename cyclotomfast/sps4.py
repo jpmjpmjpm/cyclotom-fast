@@ -37,36 +37,6 @@ class SqFreeFactors:
         return prime
 
 
-def sps4(m: SqFreeFactors, e: int, alpha: bool, poly):
-    """
-    Multiply a polynomial by Phi_m(z^e) if alpha is True otherwise by Psi_m(z^e)
-    :param m: SqFreeFactors
-        Square free odd integer
-    :param e: int
-        The power of z in the polynomial used for the product
-    :param alpha: bool
-        Multiply by Phi_m(z^e) if alpha is True otherwise by Psi_m(z^e)
-    :param poly: the polynomial to be multiplied
-    :return: the product of the polynomials
-    """
-    ms, es = deepcopy(m), e
-    while ms.has_prime():
-        p = ms.remove_last()
-        poly = sps4(ms, es, not alpha, poly)
-        es *= p
-
-    if alpha:
-        # Multiply by 1 - z^{m·e}
-        poly = np_polymul(m.value * e, poly)
-
-        # For each prime factor p of m
-        for p in m.factors.copy():
-            # Divide by 1 - z^{m·e/p}
-            poly = np_polydiv(m.value * e // p, poly)
-
-    return poly
-
-
 # Numpy version of multiplication by 1-z^n
 def np_polymul(n, poly):
     poly0 = [0] * (n + 1)
@@ -88,7 +58,7 @@ def np_first(alpha: bool):
     return np.poly1d([1 if alpha else -1])
 
 
-def cyclotomic(m: SqFreeFactors, alpha: bool):
+def cyclotomic(m: SqFreeFactors, alpha: bool, polyfirst, polymul, polydiv):
     """Return a cyclotomic or inverse cyclotomic polynomial.
 
     Parameters
@@ -97,5 +67,43 @@ def cyclotomic(m: SqFreeFactors, alpha: bool):
         Square free odd integer
     alpha: bool
         True to compute the cyclotomic polynomial, otherwise compute the inverse cyclotomic polynomial
+    polyfirst:
+        Method to compute the initial polynomial: +1 for cyclotomic or -1 for inverse cyclotomic
+    polymul:
+        Method to compute multiplication by 1 - z^n
+    polydiv:
+        Method to compute division by 1 - z^n
     """
-    return sps4(m, 1, True, np_first(alpha))
+    return sps4(m, 1, True, polyfirst(alpha), polymul, polydiv)
+
+
+def sps4(m: SqFreeFactors, e: int, alpha: bool, poly, polymul, polydiv):
+    """
+    Multiply poly polynomial by Phi_m(z^e) if alpha is True otherwise by Psi_m(z^e)
+    :param m: SqFreeFactors
+        Square free odd integer
+    :param e: int
+        The power of z in the polynomial used for the product
+    :param alpha: bool
+        Multiply by Phi_m(z^e) if alpha is True otherwise by Psi_m(z^e)
+    :param poly: the polynomial to be multiplied
+    :param polymul: method to compute multiplication by 1 - z^n
+    :param polydiv: method to compute division by 1- z^n
+    :return: the product of the polynomials
+    """
+    ms, es = deepcopy(m), e
+    while ms.has_prime():
+        p = ms.remove_last()
+        poly = sps4(ms, es, not alpha, poly, polymul, polydiv)
+        es *= p
+
+    if alpha:
+        # Multiply by 1 - z^{m·e}
+        poly = polymul(m.value * e, poly)
+
+        # For each prime factor p of m
+        for p in m.factors.copy():
+            # Divide by 1 - z^{m·e/p}
+            poly = polydiv(m.value * e // p, poly)
+
+    return poly
