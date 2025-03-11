@@ -152,8 +152,20 @@ Si $P, Q$ sont des polynômes à coefficients entiers, et que $Q$ est unitaire, 
 \end{propriete}
 On démontre cette propriété bien qu'elle ne soit pas utile pour les algorithmes utilisés ici pour leur calcul.\\
 
-Soit $\zeta$ une racine primitive $n$-ième de l'unité, $p$ un nombre premier avec $n$ et $f,g \in \mathbb Q[X]$ les polynômes minimaux unitaires de $\zeta$ et $\zeta^\prime = \xi^p$. Montrons que $f,g$ sont à coefficients entiers. $\mathbb Z$ étant factoriel, $\mathbb Z[X]$ l'est aussi et $\Phi_n = f_1^{\alpha_1} \cdots f_1^{\alpha_r}$ où $f_1, \dots ,f_r \in \mathbb Z[X]$. $\Phi_n$ étant unitaire, on peut supposer que les $f_i$ le sont aussi. $\zeta$ est racine de l'un des $f_i$, qui est irréductible sur $\mathbb Z$ et donc sur $\mathbb Q$. Donc $f$ est l'un des $f_i$, et $g$ aussi puisque $\zeta^\prime$ est racine de $\Phi_n$. Donc $f,g$ divisent $\phi_n$ dans $\mathbb Z[X]$.\\
+Soit $\zeta$ une racine primitive $n$-ième de l'unité, $p$ un nombre premier avec $n$ et $f,g \in \mathbb Q[X]$ les polynômes minimaux unitaires de $\zeta$ et $\zeta^p$. Montrons que $f,g$ sont à coefficients entiers. $\mathbb Z$ étant factoriel, $\mathbb Z[X]$ l'est également et $\Phi_n = f_1^{\alpha_1} \cdots f_r^{\alpha_r}$ où $f_1, \dots ,f_r \in \mathbb Z[X]$. $\Phi_n$ étant unitaire, on peut supposer que les $f_i$ le sont aussi. $\zeta$ est racine de l'un des $f_i$, qui est irréductible sur $\mathbb Z$ et donc sur $\mathbb Q$. Par conséquent, $f$ est l'un des $f_i$, $g$ aussi puisque $\zeta^p$ est racine de $\Phi_n$ et $f,g$ divisent $\Phi_n$ dans $\mathbb Z[X]$.\\
 
+Montrons que $f=g$. Dans le cas contraire, comme $f,g$ sont irréductibles, le produit $f \cdot g$ divise $\Phi_n$ dans $\mathbb Z[X]$. $\zeta^p$ étant racine de $g$, $\zeta$ est racine de $g(X^p)$ et $f(X)$ divise $g(X^p)$ dans $\mathbb Q[X]$, donc aussi dans $\mathbb Z[X]$ puisque $f$ est unitaire. On écrit $g(X^p) = f(X)h(X)$ avec $h(x) \in \mathbb Z[X]$.\\
+
+Projetons cette égalité dans $\mathbb F_p$. $g(X) = a_r X^r + \cdots + a_0$ avec $a_i \in \mathbb Z$. Par Frobenius:
+
+$$\overline{g}(X^p) = (\overline{a_r} X^r + \cdots + \overline{a_0})^p = \overline{g}(X)^p = \overline{f}(X) \overline{h}(X).$$ Si $\varphi \in \mathbb F_p[X]$ est un facteur irréductible de $\overline{f}$, $\varphi$ divise $\overline{g}$ et donc $\varphi^2$ divise $\overline{\Phi}_n$ dans $\mathbb F_p[X]$. Ce qui est absurde, puisque $p$ ne divisant pas $n$ et que $\overline{\Phi}_n^\prime(X) = n X^{n-1} \neq 0$, $\overline{\Phi}_n$ ne peut pas avoir de racine double dans un corps de décomposition.\\
+
+Maintenant, si $\zeta^\prime$ est une racine $n$-ième de l'unité, on a $\zeta^\prime = \zeta^m$ avec $m = p_1^{\alpha_1} \cdots p_s^{\alpha_s}$ où $p_i \nmid n$. Une récurrence permet de montrer que $\zeta^\prime$ et $\zeta$ ont le même polynôme minimal. De sorte que $f$ admet toutes les racines primitives de l'unité comme zéro. Comme $f \mid^ \Phi_n$, et que ces deux polynômes sont unitaires, on obtient que $f = \Phi_n$ et donc que $\Phi_n$ est irréductible.\\
+
+
+
+Notons que les polynômes cyclotomiques, ne sont pas toujours irréductibles sur les corps finis. Ainsi, sur $\mathbb F_2$:
+$$\Phi_7(X)= (X^2+X^2+1)(X^3+X+1).$$\\
 
 
 Nous définissons maintenant la fonction de Möbius $\mu : \mathbb N^* \to \{-1, 0, 1\}\}$:
@@ -196,15 +208,6 @@ Dans la somme ci-dessus, on peut changer d'indice de sommation en prenant $e = d
 $$\sum_{d \in S_d^\prime} \mu\left(\frac{d}{d^\prime}\right) = \sum_{e \mid \frac{n}{d^\prime}} \mu(e)$$ et le résultat compte tenu de la seconde propriété ci-dessus de la fonction de Möbius.
 
 Cette définition permettra le calcul des polynômes cyclotomiques en effectuant des multiplications et des divisions par des polynômes du type $X^d - 1$.
-
-
-\begin{propriete}[Irréductibilité des polynômes cyclotomiques]
-	Pour tout $n \ge 1$, $\Phi_n(X) \in \mathbb Q[X]$ est irréductible.
-\end{propriete}
-Démontrons ce résultat, bien que nous ne l'utiliserons pas ultérieurement pour le calcul des polynômes cyclotomiques.\\
-
-Les polynômes cyclotomiques, ne sont pas toujours irréductibles sur les corps finis. Ainsi, sur $\mathbb F_2$:
-$$\Phi_7(X)= (X^2+X^2+1)(X^3+X+1).$$
 
 Les propriétés suivantes des polynômes cyclotomiques sont importantes pour les algorithmes de calcul. Elles permettent en effet d'une part de limiter les calculs principaux au cas où $n$ est un produit de nombres premiers distincts, et pour ce dernier cas d'élaborer un algorithme récursif pour leur calcul: l'algorithme \texttt{SPS4} de l'article étudié.
 
