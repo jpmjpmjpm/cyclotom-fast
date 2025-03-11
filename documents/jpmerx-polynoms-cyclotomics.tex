@@ -1,0 +1,280 @@
+
+\documentclass{article}
+
+\usepackage[a4paper, dvips]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{amsmath,latexsym}
+\usepackage{amssymb}
+\usepackage{bbm}
+\usepackage{hyperref}
+\usepackage{enumerate}
+\usepackage{xcolor}
+\usepackage{pstricks}
+\usepackage{pst-node}
+\usepackage[amsmath, standard, hyperref]{ntheorem}
+%%\usepackage{french}
+\usepackage{theoremref}
+
+\newcommand{\R}{\mathbbm{R}}
+\newcommand{\Pv}{\mathbbm{P}}
+\newcommand{\D}{\mathbbm{D}}
+\newcommand{\Hv}{\mathbbm{H}}
+\newcommand{\Rs}{\mathcal{R}}
+\newcommand{\Fs}{\mathcal{F}}
+\newcommand{\N}{\mathbbm{N}}
+\newcommand{\F}{\mathbbm{F}}
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\T}{\mathcal{T}}
+\newcommand{\Ns}{\mathcal{N}}
+\newcommand{\Z}{\mathbbm{Z}}
+\newcommand{\Zs}{\mathcal{Z}}
+\newcommand{\Q}{\mathbbm{Q}}
+\newcommand{\Fpol}{\mathcal{F}_{Pol}}
+\newcommand{\Flin}{\mathcal{F}/_{\equiv}}
+\newcommand{\Ls}{\mathcal{L}}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\Ss}{\mathcal{S}}
+\newcommand{\Sf}{\mathfrak{S}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\K}{\mathcal{K}}
+\newcommand{\C}{\mathbbm{C}}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\ind}{\textrm{ind}}
+\newcommand{\ZFC}{\textbf{\mbox{ZFC}}}
+\newcommand{\Gal}{\mathrm{Gal}}
+\newcommand{\Vect}{\mathrm{Vect}}
+\newcommand{\Hom}{\mathrm{Hom}}
+\newcommand{\GF}{\mathrm{GF}}
+\newcommand{\pgcd}{\mbox{pgcd}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\car}{\mbox{car}}
+\newcommand{\gr}{\mathrm{gr}}
+\newcommand{\card}{\mbox{card}}
+\newcommand{\Aut}{\mbox{Aut }}
+\newcommand{\Ag}{\mathfrak{A}}
+\newcommand{\CD}{\textbf{\mbox{CD}}}
+\newcommand{\PfN}{\mathcal{P}_f(\N)}
+\newcommand{\PcofE}{\mathcal{P}_{cof}(E)}
+\newcommand{\OO}{\mathcal{O}}
+\newcommand{\inp}{\in_{\varphi}}
+\newcounter{question}
+\newcounter{subquestion}[question]
+\newcounter{lemme}
+
+
+
+\theoremstyle{break}                  % passage à la ligne 
+\theorembodyfont{\itshape}     % fonte
+\newtheorem{theoreme}{Théorème}
+\newtheorem{preuve}{Preuve}
+\newtheorem{propriete}{Propriété}
+\newtheorem{lemme}{Lemme}
+\newtheorem{corollaire}{Corollaire}
+\newtheorem{axiome}{Axiome}
+
+\newtheorem{exemple}{Exemple}
+\newtheorem{remarque}{Remarque}
+\newtheorem{convention}{Convention}
+\newtheorem{note}{Note}
+\newtheorem{representation}{Représentation graphique}
+
+\parindent=0pt
+
+\begin{document}
+
+\title{Travail d'étude et de recherche - M1 de Mathématiques\
+Calcul des polynômes cyclotomiques}
+\author{Jean-Philippe MERX}
+\date{2025}
+
+\maketitle
+
+\section*{Utilitaires}
+\href{https://tex.stackexchange.com/questions/204411/getting-examples-to-look-like-theorems-lemmas-corollaries}{Théorèmes and Co.}
+
+
+\href{https://www.youtube.com/watch?v=RLdHp_PB_x0}{Vidéo explicative du calcul des polynômes cyclotomiques à la main}.
+
+\href{https://www.youtube.com/watch?v=gnBbm78jz0Y}{Intéressant pour la fonction de Möbius}.
+
+\href{https://jacquescellier.fr/maths/polynomes_cyclotomiques.pdf}{Propriétés des polynômes cyclotomiques}.
+
+\href{https://en.wikipedia.org/wiki/Reciprocal_polynomial}{Self-reciproqual or palindromic polynomials}.
+
+\section*{Résultats variés}
+\href{https://arxiv.org/pdf/0810.5496}{Neighboring ternary cyclotomic coefficients differ by at most one}
+
+\href{https://webusers.imj-prg.fr/~pierre.charollois/Charollois_Pbme_cyclotomiques_agreg2015.pdf}{Problème de préparation à l'agrégation sur les polynômes cyclotomiques}. Où l'on prouve entre autre que les coefficients des polynômes cyclotomiques binaires sont dans $\{-1, 0, 1\}$.
+
+\href{https://arxiv.org/pdf/2111.04034}{Une synthèse concernant les coefficients de polynômes cyclotomiques}Théorème
+sion
+\href{https://math.dartmouth.edu/~carlp/cyclo.pdf}{On the size of the coefficients of the cyclotomic polynomial}
+
+
+\section*{Introduction}
+Rappeler l'article qui est étudié et ce qui est attendu.
+
+\section*{Mathématiques des polynômes cyclotomiques}
+\subsection*{Définitions}
+Pour un entier $n \ge 1$, on désigne le polynôme $$P_n(X) = X^n - 1 \in \Q[X]$$ et par $U_n$ les racines de $P_n$, c'est à dire les racines $n^{\text{ème}}$ de l'unité. $U_n$ est un sous-groupe du groupe $\mathbb U$ des complexes de module un. C'est un groupe cyclique fini. On peut le montrer en se souvenant qu'un groupe abélien fini $G$ est somme directe de ses sous-groupes $p$-maximaux $G(p)$, c'est à dire de ses éléments qui sont une puissance de $p$. Ici, on peut montrer que $G(p) = \{x \in U_n \mid x^{m_p} = 1\}$ où $m_p$ est l'ordre de $G(p)$ et donc que $G(p)$ est cyclique. On conclut sachant qu'un groupe abélien fini somme directe de groupes d'ordres premiers est cyclique.\\
+
+
+On désigne dans la suite par $U_n^* \subseteq U_n$ les générateurs de $U_n$, c'est à dire les éléments dont l'ordre est premier avec $n$. Le $n^{\text{ème}}$ polynôme cyclotomique $\Phi_n \in \Q[X]$ est alors défini par:
+
+$$\Phi_n(x) = \prod_{\zeta \in U^*_n} (X - \zeta) = \prod_{\substack{j=1\\ \gcd(j,n)=1}}^n (X - e^{\frac{2 \pi i}{n}j})$$
+
+et le $n^{\text{ème}}$ polynôme cyclotomique inverse $\Psi_n \in \Q[X]$ par:
+
+$$\Psi_n(x) = \prod_{\zeta \in U_n \setminus U^*_n} (X - \zeta) = \prod_{\substack{j=1\\ \gcd(j,n) > 1}}^n (X - e^{\frac{2 \pi i}{n}j}) = \frac{X^n - 1}{\Phi_n(X)}.$$
+
+En particulier: $\Phi_1(X) = X-1$ et $\Psi_1(X) = 1$.
+
+\subsection*{Propriétés utiles au calcul des polynômes cyclotomiques}
+On s'attache maintenant à décrire et démontrer des propriétés des polynômes $\Phi_n, \Psi_n$ qui vont permettre de les calculer efficacement. 
+
+\begin{propriete}\thlabel{prop:prodphi}
+	Pour $n \ge 1$ on a $P_n(X) = X^n-1 = \prod_{ d \mid n} \Phi_d(X)$.
+\end{propriete}
+En effet, $U_n$ est la réunion des $U_d^*$ pour $d \mid n$ et les $U_d^*$ sont deux à deux disjoints.
+
+\begin{propriete}
+	Les polynômes $\Phi_n$ sont à coefficients entiers.
+\end{propriete}
+Si $P, Q$ sont des polynômes à coefficients entiers, et que $Q$ est unitaire, alors la division euclidienne de $P = AQ + R$ par $Q$ conduit à des polynômes $A,R$ appartenant à $\mathbb Z[X]$. L'utilisation de la \thref{prop:prodphi} et une récurrence forte permet de conclure que $\Phi_n \in \mathbb Z[X]$ pour $n \ge 1$.
+
+\begin{propriete}[Irréductibilité des polynômes cyclotomiques]
+	Les polynômes $\Phi_n \in \mathbb Z[X]$ sont irréductibles.
+\end{propriete}
+On démontre cette propriété bien qu'elle ne soit pas utile pour les algorithmes utilisés ici pour leur calcul.\\
+
+Soit $\zeta$ une racine primitive $n$-ième de l'unité, $p$ un nombre premier avec $n$ et $f,g \in \mathbb Q[X]$ les polynômes minimaux unitaires de $\zeta$ et $\zeta^\prime = \xi^p$. Montrons que $f,g$ sont à coefficients entiers. $\mathbb Z$ étant factoriel, $\mathbb Z[X]$ l'est aussi et $\Phi_n = f_1^{\alpha_1} \cdots f_1^{\alpha_r}$ où $f_1, \dots ,f_r \in \mathbb Z[X]$. $\Phi_n$ étant unitaire, on peut supposer que les $f_i$ le sont aussi. $\zeta$ est racine de l'un des $f_i$, qui est irréductible sur $\mathbb Z$ et donc sur $\mathbb Q$. Donc $f$ est l'un des $f_i$, et $g$ aussi puisque $\zeta^\prime$ est racine de $\Phi_n$. Donc $f,g$ divisent $\phi_n$ dans $\mathbb Z[X]$.\\
+
+
+
+Nous définissons maintenant la fonction de Möbius $\mu : \mathbb N^* \to \{-1, 0, 1\}\}$:
+\begin{displaymath}
+	\mu(n) = :
+	\begin{cases}
+		1 & \text{si } n = 1\\
+		0 & \text{si } n \text{ a un facteur premier carré}\\
+		(-1)^r & \text{où } $r$ \text{ est le nombre de facteurs premiers de } $n$\\
+	\end{cases}
+\end{displaymath}
+
+\begin{propriete}[Deux propriétés de la fonction de Möbius]
+	\begin{enumerate}
+		\item $\mu$ est multiplicative: si $m,n $ sont premiers entre eux: $\mu(mn)= \mu(m)\mu(n)$.
+		\item Si $n >1$, $\displaystyle \sum_{d \mid n} \mu(d) = 0$.
+	\end{enumerate}
+\end{propriete}
+Si $m$ ou $n$ est égal à $1$, la première propriété est évidente. Si $m,n$ sont premiers entre eux, ils n'ont pas de facteur premier commun. Alors $\mu(mn)=\mu(m)\mu(n)=0$ si $m$ ou $n$ a un facteur premier carré. Dans le cas contraire, le nombre de facteurs premiers de $mn$ est la somme des nombres de facteurs premiers de $m$ et $n$.\\
+
+Concernant la seconde propriété, supposons que $n = \displaystyle \prod_{n = 1}^r p_1^{\alpha_1} \cdots p_r^{\alpha_r}$ où $\{p_1, \dots p_r\}$ sont des premiers distincts et $\alpha_1, \dots, \alpha_r$ des entiers supérieurs ou égaux à $1$. Dans la somme $\displaystyle \sum_{d \mid n} \mu(d)$, seuls les diviseurs $d$ de $n$ sans facteur premier carré ont une contribution non nulle, ce qui conduit à l'égalité:
+$$\sum_{d \mid n} \mu(d) = \sum_{i = 0}^{r}\sum_{\substack{S \subseteq \{p_1, \dots, p_r\}\\ \left\vert S \right\vert = i}} (-1)^i = \sum_{i = 0}^{r} \binom{r}{i}(-1)^i =(1-1)^r=0.$$
+
+Nous fournissons à présent une autre définition des polynômes cyclotomiques utilisant la fonction de Möbius.
+
+\begin{propriete}[Définition équivalente des polynômes cyclotomiques]
+	$$\Phi_n(X) = \prod_{d \mid n} (X^d - 1)^{\mu(\frac{n}{d})} = \prod_{d \mid n} (1 - X^d)^{\mu(\frac{n}{d})}$$
+	$$\Psi_n(X) = \prod_{d \mid n, d<n} (X^d - 1)^{-\mu(\frac{n}{d})} = -\prod_{d \mid n, d<n} (1 - X^d)^{-\mu(\frac{n}{d})}$$
+\end{propriete}
+
+La seconde formule est une conséquence immédiate de la première et de l'égalité $\Phi_n(X) \Psi_n(X) = X^n-1$. Pour montrer la première, notons
+$$F_n(X) = \prod_{d \mid n} (X^d - 1)^{\mu(\frac{n}{d})} = \prod_{d \mid n} (X^{\frac{n}{d}} - 1)^{\mu(d)}.$$ Il suffit de prouver que $\displaystyle \prod_{ d \mid n} F_d(X) = X^n-1$, puisque l'on obtient alors par récurrence $F_n(X) = \Phi_n(X)$ partant du constat que $F_1(X) = \Phi_1(X) = 1$. Nous avons:
+
+$$\prod_{ d \mid n} F_d(X) = \prod_{ d \mid n} \prod_{d^\prime \mid d} (X^{d^\prime} - 1)^{\mu(\frac{d}{d^\prime})}$$ et allons montrer que pour $d^\prime$ divisant $n$ fixé
+
+$$\sum_{d \in S_d^\prime} \mu\left(\frac{d}{d^\prime}\right)=\begin{cases}1 &\text{si } d= n\\
+	0 &\text{autrement }\end{cases}$$ où $S_{d^\prime} = \{d ; d^\prime \mid d \text{ et } d \mid n\}$.
+Dans la somme ci-dessus, on peut changer d'indice de sommation en prenant $e = d/d^\prime$ et effectuer la somme sur l'ensemble $\overline{S}_{d^\prime} = \{e ; e \mid \frac{n}{d^\prime}\}$, c'est à dire l'ensemble des diviseurs de $\frac{n}{d^\prime}$. D'où
+
+$$\sum_{d \in S_d^\prime} \mu\left(\frac{d}{d^\prime}\right) = \sum_{e \mid \frac{n}{d^\prime}} \mu(e)$$ et le résultat compte tenu de la seconde propriété ci-dessus de la fonction de Möbius.
+
+Cette définition permettra le calcul des polynômes cyclotomiques en effectuant des multiplications et des divisions par des polynômes du type $X^d - 1$.
+
+
+\begin{propriete}[Irréductibilité des polynômes cyclotomiques]
+	Pour tout $n \ge 1$, $\Phi_n(X) \in \mathbb Q[X]$ est irréductible.
+\end{propriete}
+Démontrons ce résultat, bien que nous ne l'utiliserons pas ultérieurement pour le calcul des polynômes cyclotomiques.\\
+
+Les polynômes cyclotomiques, ne sont pas toujours irréductibles sur les corps finis. Ainsi, sur $\mathbb F_2$:
+$$\Phi_7(X)= (X^2+X^2+1)(X^3+X+1).$$
+
+Les propriétés suivantes des polynômes cyclotomiques sont importantes pour les algorithmes de calcul. Elles permettent en effet d'une part de limiter les calculs principaux au cas où $n$ est un produit de nombres premiers distincts, et pour ce dernier cas d'élaborer un algorithme récursif pour leur calcul: l'algorithme \texttt{SPS4} de l'article étudié.
+
+
+\begin{propriete}
+	Soient $p,q$ des entiers premiers tels que $p \nmid n$ et $q \mid n$. Alors:
+	\begin{align}
+		\Phi_{np}(X) &= \frac{\Phi_n(X^p)}{\Phi_n(X)} \tag{2.8a}\label{ndivphi}\\
+		\Phi_{nq}(X) &= \Phi_n(X^q) \tag{2.8b}\label{divphi}\\
+		\Psi_{np}(X) &= \Psi_n(X^p)\Phi_n(X) \tag{2.8c}\label{ndivpsi}\\
+		\Psi_{nq}(X) &= \Psi_n(X^q)	 \tag{2.8d}\label{divpsi}
+	\end{align}
+\end{propriete}
+
+Des formules précédentes $\ref{divphi}$ et $\ref{divpsi}$ pour le cas où $q \mid n$, on déduit par récurrence que
+
+
+\begin{propriete}[Réduction aux cas des entiers sans facteurs carré]
+	Si $n = q_1^{e_1} \cdots q_k^{e_k}$ où $q_1, \dots, q_k$ sont des premiers distincts:
+	\begin{align*}
+		\Phi_{n}(X) &= \Phi_{q_1 \cdots q_k}(X^{q_1^{e_1 - 1} \cdots q_k^{e_k - 1}})\\
+		\Psi_{n}(X) &= \Psi_{q_1 \cdots q_k}(X^{q_1^{e_1 - 1} \cdots q_k^{e_k - 1}})
+	\end{align*}
+\end{propriete}
+
+Ces égalités permettent de limiter le calcul des polynômes cyclotomiques au cas où $n$ est sans facteurs carré, ce que nous supposons dorénavant.\\
+
+
+Pour ce faire, supposons que $n = p_1 \cdots p_k$ soit le produit de $k$ nombres premiers \textbf{impairs} distincts. Pour $1 \le i \le k$, notons $m_i = p_1 \cdots p_{i-1}$ et $e_i = p_{i+1} \cdots p_{k}$. En particulier $m_1=e_k=1$ et on note $e_0 = n$. Pour $1 \le i \le k$, nous avons alors $n = e_i p_i n_i$, ainsi que $e_{i-1}=p_i e_i$ et $m_{i+1}=m_i p_i$. À partir de la formule $\ref{ndivphi}$ et de l'identité $\Phi_{m_k}(X) \Psi_{m_k}(X) = X^{m_k}-1$ on obtient
+$$\Phi_{n}(X) = - \frac{\Psi_{m_k}(X^{e_k})}{1- X^{n/p_k}} \Phi_{m_k}(X^{e_{k-1}}).$$
+Sachant que $\Phi_1(X^{e_0}) = \Phi_1(X^n) = X^n-1$ on montre alors par récurrence:
+$$\Phi_n(X)=\prod_{j=1}^{k} - \Psi_{m_j}(X^{e_j}) \prod_{j=1}^{k} (1-X^{n/p_j})^{-1}(1-X^n)$$
+ou encore $$\Phi_n(X)=\prod_{j=2}^{k} - \Psi_{m_j}(X^{e_j}) \prod_{j=1}^{k} (1-X^{n/p_j})^{-1}(1-X^n)$$
+puisque $\Psi_{m_1}(X^{e_1}) = \Psi_{1}(X^{e_1}) =1$. L'utilisation de la formule $\ref{ndivpsi}$ et une récurrence similaire permet d'écrire $\Psi_n(X)$ comme produit de polynômes cyclotomiques d'ordres inférieurs; ce que l'on résume dans la propriété suivante:
+
+
+\begin{propriete}[Formules récursives de calcul des polynômes cyclotomiques]
+	\begin{align*}
+		\Phi_n(X) &=\prod_{j=2}^{k} - \Psi_{m_j}(X^{e_j}) \prod_{j=1}^{k} (1-X^{n/p_j})^{-1}(1-X^n)\tag{3.17}\label{recurphi}\\
+		\Psi_{n}(X) &=\prod_{j=1}^{k} \Phi_{m_j}(X^{e_j})\tag{3.25}\label{recurpsi}
+	\end{align*}
+\end{propriete}
+
+\section*{Calcul des polynômes cyclotomiques}
+\subsection*{Éléments clefs}
+\begin{itemize}
+	\item Utilisation de la formule d'inversion de Mobiüs.
+	\item Et des polynômes cyclotomiques inverses.
+	\item Formules (LEMME 1) liant les polynômes cyclotomiques et polynômes cyclotomiques inverses pour les produits d'un entier par une entier premier. Ces formules font appel à la division de polynômes.
+	\item Pour la division de polynômes, il est possible d'utiliser un algorithme FFT. L'article décrit des calculs dans des corps de cardinal premier et reconstruction par le théorème des restes chinois. Il mentionne \textit{"For even though the numerator is sparse, the denominator and quotient are typically dense."}
+	\item Analyser les problèmes provenant de la taille des entiers manipulés. En particulier, \texttt{Python} utilise pour les entiers une arithmétique sans limite de taille. \textit{Quelle est l'implication pour les performances?}
+	\item La formule 3.14 est importante, car elle permet de transformer une division par un polynôme cyclotomique en un produit par un polynôme cyclotomique inverse et une division par un polynôme de la forme $1 - z^m$.
+	\item Et en utilisant des résultats de séries formelles, cela revient à effectuer une multiplication par une série $1 + z^m + z^{2m} + \dots$... où il est nécessaire de contrôler le nombre de termes à conserver de la série.
+	\item Les propriétés palindromiques des polynômes cyclotomiques permettent quant à elle de diviser par deux le nombre de coefficients à calculer. Le LEMME 4 étend ces propriétés aux produits de polynômes cyclotomiques (et de polynômes cyclotomiques inverses).
+	\item Ces propriétés peuvent-être utilisées dans tous les calculs intermédiaires.
+	\item Les formules 3.17 et 3.19 indiquent comment calculer les polynômes cyclotomiques (et cyclotomiques inverses) à partir des précédents.
+	\item Pour de "très grands" polynômes cyclotomiques, on peut être amené à calculer "trop de termes" $\implies$ voir remarque 3.22.
+	\item \textit{Analyser le dernier algorithme récursif!!!}
+\end{itemize}
+
+\subsection*{Algorithmes de l'article}
+
+\subsection*{Implémentation SAGE}
+SAGE implémente la méthode  \texttt{cyclotomic\_coeffs} \href{https://github.com/sagemath/sage/blob/develop/src/sage/rings/polynomial/cyclotomic.pyx}{ici}. Lorsque la hauteur du polynôme à calculer dépasse:
+\begin{verbatim}
+	cdef long fits_long_limit = 169828113 if sizeof(long) >= 8 else 10163195
+\end{verbatim}
+SAGE bascule sur un algorithme (plus lent) basé sur \href{https://pari.math.u-bordeaux.fr/}{PARI/GP} en précision infinie.
+
+\subsection*{Implémentation SymPy}
+De son côté, SymPy implémente la méthode \href{https://docs.sympy.org/latest/modules/polys/internals.html#sympy.polys.factortools.dup_zz_cyclotomic_poly}{dup\_zz\_cyclotomic\_poly}, à analyser. Il y a visiblement une arithmétique en précision infinie, basée sur gmpy2, \textit{comment s'effectue le basculement?}
+
+\end{document}

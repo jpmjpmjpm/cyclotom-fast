@@ -2,7 +2,10 @@ Travail d'étude et de recherche - M1 de Mathématiques
 =====================================================
 ***Calcul rapide des polynômes cyclotomiques***
 
-**Auteur :** *Jean-Philippe MERX*
+**Auteur :** *Jean-Philippe MERX* / 
+**Enseignant :** *Pierre-Vincent Koseleff*
+
+
 
 # Rappel du thème du TER
 Dans [AM10](documents/cyclotomic-highperf.pdf), Arnold et Monagan proposent une méthode pour calculer efficacement et rapidement les polynômes cyclotomiques Φn.
@@ -16,7 +19,7 @@ Les ouvrages [GG13, AECF, SM] pourront utilement être consultés. Le travail pe
 - [[SM]](https://doc.sagemath.org/pdf/en/tutorial/sage_tutorial.pdf) SageMath Reference Manual, 2023
 
 
-# Structure du repo :
+# Structure du [repo](https://github.com/jpmjpmjpm/cyclotom-fast) :
 - Répertoire [documents](documents) :
     - [Article à analyser](documents/cyclotomic-highperf.pdf) : document à analyser constituant le thème du TER.
     - [Mémoire TER M1](documents/jpmerx-polynoms-cyclotomics.pdf) : document PDF du mémoire du TER.
@@ -25,7 +28,7 @@ Les ouvrages [GG13, AECF, SM] pourront utilement être consultés. Le travail pe
     - [sps4.py](cyclotomfast/sps4.py) : programmes de calculs des polynômes cyclotomiques.
     - [test_sps4.py](cyclotomfast/test_sps4.py) : programmes de tests.
 
-# Comments on `SPS4_64.c`
-## SPS4 program
+# Miscellaneous
+### [SPS4_64.c](documents/SPS4_64.c) program
 Comments on some variables:
 - Dg: the degree of the computed product polynomial 
