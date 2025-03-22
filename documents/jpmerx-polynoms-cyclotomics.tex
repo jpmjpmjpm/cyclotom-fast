@@ -143,9 +143,9 @@ On s'attache maintenant à décrire et démontrer des propriétés des polynôme
 En effet, $U_n$ est la réunion des $U_d^*$ pour $d \mid n$ et les $U_d^*$ sont deux à deux disjoints.
 
 \begin{propriete}
-	Les polynômes $\Phi_n$ sont à coefficients entiers.
+	Les polynômes $\Phi_n$ sont à coefficients entiers et unitaires.
 \end{propriete}
-Si $P, Q$ sont des polynômes à coefficients entiers, et que $Q$ est unitaire, alors la division euclidienne de $P = AQ + R$ par $Q$ conduit à des polynômes $A,R$ appartenant à $\mathbb Z[X]$. L'utilisation de la \thref{prop:prodphi} et une récurrence forte permet de conclure que $\Phi_n \in \mathbb Z[X]$ pour $n \ge 1$.
+Si $P, Q$ sont des polynômes à coefficients entiers, et que $Q$ est unitaire, alors la division euclidienne de $P = AQ + R$ par $Q$ conduit à des polynômes $A,R$ appartenant à $\mathbb Z[X]$. De plus, $A$ est unitaire si $P, Q$ le sont.  L'utilisation de la \thref{prop:prodphi} et une récurrence forte permet de conclure que $\Phi_n$ est un polynôme à coefficients entiers unitaire pour $n \ge 1$.
 
 \begin{propriete}[Irréductibilité des polynômes cyclotomiques]
 	Les polynômes $\Phi_n \in \mathbb Z[X]$ sont irréductibles.
@@ -192,8 +192,10 @@ $$\sum_{d \mid n} \mu(d) = \sum_{i = 0}^{r}\sum_{\substack{S \subseteq \{p_1, \d
 Nous fournissons à présent une autre définition des polynômes cyclotomiques utilisant la fonction de Möbius.
 
 \begin{propriete}[Définition équivalente des polynômes cyclotomiques]
-	$$\Phi_n(X) = \prod_{d \mid n} (X^d - 1)^{\mu(\frac{n}{d})} = \prod_{d \mid n} (1 - X^d)^{\mu(\frac{n}{d})}$$
-	$$\Psi_n(X) = \prod_{d \mid n, d<n} (X^d - 1)^{-\mu(\frac{n}{d})} = -\prod_{d \mid n, d<n} (1 - X^d)^{-\mu(\frac{n}{d})}$$
+	\begin{align}		
+		\Phi_n(X) = \prod_{d \mid n} (X^d - 1)^{\mu(\frac{n}{d})} = \prod_{d \mid n} (1 - X^d)^{\mu(\frac{n}{d})} = \prod_{d \mid n} (1 - X^\frac{n}{d})^{\mu(d)} \tag{2.4}\label{mobphi}\\
+		\Psi_n(X) = \prod_{d \mid n, d<n} (X^d - 1)^{-\mu(\frac{n}{d})} = -\prod_{d \mid n, d<n} (1 - X^d)^{-\mu(\frac{n}{d})}\tag{2.5}\label{mobpsi}
+	\end{align}
 \end{propriete}
 
 La seconde formule est une conséquence immédiate de la première et de l'égalité $\Phi_n(X) \Psi_n(X) = X^n-1$. Pour montrer la première, notons
@@ -222,7 +224,32 @@ Les propriétés suivantes des polynômes cyclotomiques sont importantes pour le
 	\end{align}
 \end{propriete}
 
-Des formules précédentes $\ref{divphi}$ et $\ref{divpsi}$ pour le cas où $q \mid n$, on déduit par récurrence que
+Remarquons tout d'abord que si $m$ est un entier quelconque
+$$\Phi_{nm}(X) \Psi_{nm}(X) = X^{nm}-1 = (X^p)^m-1=\Phi_{n}(X^m) \Psi_{n}(X^m).$$ Si $\ref{ndivphi}$ est vraie on obtient
+$$\Psi_{np}(X) = \frac{X^{np}-1}{\Phi_{np}(X)} =\frac{X^{np}-1}{\Phi_{n}(X^p)}\Phi_n(X)=\Psi_n(X^p)\Phi_n(X)$$ montrant $\ref{ndivpsi}$. De manière similaire, on déduit $\ref{divpsi}$ de $\ref{divphi}$.\\
+
+Pour $n$ entier, nous noterons dorénavant $D_n$ l'ensemble des diviseurs de $n$ sans facteurs carré. On peut réécrire \ref{mobphi}
+$$\Phi_{n}(X) = \prod_{d \in S_n} (1 - X^\frac{n}{d})^{\mu(d)}.$$ Si $d$ est un diviseur de $np$ sans facteur premier, ou bien $d$ divise $n$, ou bien $d$ est de la forme $d^\prime p$. D'où l'égalité
+$$\Phi_{np}(X) = \prod_{d \in S_{n}} (1 - X^\frac{np}{d})^{\mu(d)}
+\prod_{dp \in S_{np}} (1 - X^\frac{np}{dp})^{\mu(dp)}.$$ Le premier facteur est $\Phi_{n}(X^p)$. Observons que dans le second, $dp$ étant sans facteurs carré, $d$ est premier avec $p$ et donc $\mu(dp)= \mu(d)\mu(p)= - \mu(d)$. Ce second facteur est simplement l'inverse de $\Phi_{n}$: nous avons prouvé $\ref{ndivphi}$.\\
+
+Il nous reste à prouver $\ref{divphi}$. Puisque $q$ divise $n$, les diviseurs sans facteurs carré de $nq$ sont ceux de $n$ et
+$$\Phi_{nq}(X) = \prod_{d \in S_{n}} (1 - X^\frac{nq}{d})^{\mu(d)} = \Phi_n(X^q),$$ qui est le résultat souhaité.\\
+
+Portant notre attention sur le cas où $2$ divise $n$, nous allons obtenir la propriété suivante:
+
+
+\begin{propriete}
+	Pour $n > 1$:
+	$$\Phi_{2n}(X) = \begin{cases}
+		\Phi_n(X^2) & \text{si } $n$ \text{ est pair}\\
+		\Phi_n(-X) & \text{sinon}
+	\end{cases}$$
+\end{propriete}
+
+Le cas $n$ pair est une application immédiate de $\ref{divphi}$. Si $n$ est impair, les polynômes $\Phi_{2n}(X)$ et $\Phi_{n}(-X)$ sont égaux puisqu'ayant les mêmes racines qui sont simples. Ce résultat nous permet de nous concentrer sur le calcul des polynômes cyclotomiques $\Phi_n$ avec $n$ impair.\\
+
+On déduit d'autre part des formules précédentes $\ref{divphi}$ et $\ref{divpsi}$ pour le cas où $q \mid n$ que
 
 
 \begin{propriete}[Réduction aux cas des entiers sans facteurs carré]
@@ -233,7 +260,7 @@ Des formules précédentes $\ref{divphi}$ et $\ref{divpsi}$ pour le cas où $q \
 	\end{align*}
 \end{propriete}
 
-Ces égalités permettent de limiter le calcul des polynômes cyclotomiques au cas où $n$ est sans facteurs carré, ce que nous supposons dorénavant.\\
+Cette propriété et la précédente permettent de limiter le calcul des polynômes cyclotomiques au cas où $n$ est un produit de nombres premiers impairs distincts.\\
 
 
 Pour ce faire, supposons que $n = p_1 \cdots p_k$ soit le produit de $k$ nombres premiers \textbf{impairs} distincts. Pour $1 \le i \le k$, notons $m_i = p_1 \cdots p_{i-1}$ et $e_i = p_{i+1} \cdots p_{k}$. En particulier $m_1=e_k=1$ et on note $e_0 = n$. Pour $1 \le i \le k$, nous avons alors $n = e_i p_i n_i$, ainsi que $e_{i-1}=p_i e_i$ et $m_{i+1}=m_i p_i$. À partir de la formule $\ref{ndivphi}$ et de l'identité $\Phi_{m_k}(X) \Psi_{m_k}(X) = X^{m_k}-1$ on obtient
@@ -250,6 +277,23 @@ puisque $\Psi_{m_1}(X^{e_1}) = \Psi_{1}(X^{e_1}) =1$. L'utilisation de la formul
 		\Psi_{n}(X) &=\prod_{j=1}^{k} \Phi_{m_j}(X^{e_j})\tag{3.25}\label{recurpsi}
 	\end{align*}
 \end{propriete}
+
+On note dans la suite du document $\varphi(n)$ l'indicatrice d'Euler de $n$.
+
+\begin{propriete}[Palindromie des polynômes cyclotomiques]
+	Pour $n > 1$ impair, le polynôme $\Phi_n(X) = \sum_{i=0}^{\varphi(n)} a_i X^i$ est palindromique tandis que $\Psi_n(X) = \sum_{j=0}^{n-\varphi(n)} b_j X^j$ est anti-palindromique, ce qui signifie que
+	$$a_i=a_{\varphi(n)-i} \text{ et } b_j=-b_{n-\varphi(n)-j}.$$
+\end{propriete}
+Si $\omega$ est une racine primitive $n$-ième de l'unité, $\omega^{-1}$ aussi. $n$ étant supposé impair, $\omega \neq \omega^{-1}$ et le produit des racines de $\Phi_{n}$ est égal à $1 = a_0$ puisque $\varphi(n)$ est pair pour $n > 2$. $X^{\varphi(n)} \Phi_n(\frac{1}{X})$ est un polynôme unitaire, dont les racines sont exactement celles de $\Phi_n(X)$, ce qui prouve que $\Phi_n(X)$ est palindromique.\\
+
+De l'égalité $\Phi_n(X)\Psi_n(X) = X^n-1$ il résulte d'une part que $\Psi_n(X)$ est unitaire et d'autre part que $b_0=-1$. On remarque aussi que si $\zeta$ n'est pas une racine primitive $n$-ième de l'unité, alors $\zeta^{-1}$ non plus. $-X^{n-\varphi(n)} \Psi_n(\frac{1}{X})$ est donc un polynôme unitaire, comme $\Psi_{n}(X)$ et qui possède précisément les racines de $\Psi_{n}(X)$. Ces deux polynômes sont donc égaux, et nous concluons que $\Psi_{n}(X)$ est anti-palindromique.
+
+
+\begin{propriete}[Produit de polynômes palindromiques / anti-palindromiques]
+	Le produit de deux polynômes palindromiques ou anti-palindromiques est palindromique.\\
+	Le produit d'un polynôme palindromique par un polynôme anti-palindromique est anti-palindromique.
+\end{propriete}
+Démonstration claire à partir des définitions. 
 
 \section*{Calcul des polynômes cyclotomiques}
 \subsection*{Éléments clefs}
@@ -279,5 +323,7 @@ SAGE bascule sur un algorithme (plus lent) basé sur \href{https://pari.math.u-b
 
 \subsection*{Implémentation SymPy}
 De son côté, SymPy implémente la méthode \href{https://docs.sympy.org/latest/modules/polys/internals.html#sympy.polys.factortools.dup_zz_cyclotomic_poly}{dup\_zz\_cyclotomic\_poly}, à analyser. Il y a visiblement une arithmétique en précision infinie, basée sur gmpy2, \textit{comment s'effectue le basculement?}
+
+\section*{Considérations sur la hauteur des polynômes cyclotomiques}
 
 \end{document}
