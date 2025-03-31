@@ -50,7 +50,7 @@
 \newcommand{\Vect}{\mathrm{Vect}}
 \newcommand{\Hom}{\mathrm{Hom}}
 \newcommand{\GF}{\mathrm{GF}}
-\newcommand{\pgcd}{\mbox{pgcd}}
+\newcommand{\pgcd}{\mathrm{pgcd}}
 \newcommand{\id}{\mathrm{id}}
 \newcommand{\car}{\mbox{car}}
 \newcommand{\gr}{\mathrm{gr}}
@@ -126,11 +126,11 @@ Pour un entier $n \ge 1$, on désigne le polynôme $$P_n(X) = X^n - 1 \in \Q[X]$
 
 On désigne dans la suite par $U_n^* \subseteq U_n$ les générateurs de $U_n$, c'est à dire les éléments dont l'ordre est premier avec $n$. Le $n^{\text{ème}}$ polynôme cyclotomique $\Phi_n \in \Q[X]$ est alors défini par:
 
-$$\Phi_n(x) = \prod_{\zeta \in U^*_n} (X - \zeta) = \prod_{\substack{j=1\\ \gcd(j,n)=1}}^n (X - e^{\frac{2 \pi i}{n}j})$$
+$$\Phi_n(x) = \prod_{\zeta \in U^*_n} (X - \zeta) = \prod_{\substack{j=1\\ \pgcd(j,n)=1}}^n (X - e^{\frac{2 \pi i}{n}j})$$
 
 et le $n^{\text{ème}}$ polynôme cyclotomique inverse $\Psi_n \in \Q[X]$ par:
 
-$$\Psi_n(x) = \prod_{\zeta \in U_n \setminus U^*_n} (X - \zeta) = \prod_{\substack{j=1\\ \gcd(j,n) > 1}}^n (X - e^{\frac{2 \pi i}{n}j}) = \frac{X^n - 1}{\Phi_n(X)}.$$
+$$\Psi_n(x) = \prod_{\zeta \in U_n \setminus U^*_n} (X - \zeta) = \prod_{\substack{j=1\\ \pgcd(j,n) > 1}}^n (X - e^{\frac{2 \pi i}{n}j}) = \frac{X^n - 1}{\Phi_n(X)}.$$
 
 En particulier: $\Phi_1(X) = X-1$ et $\Psi_1(X) = 1$.
 
@@ -145,7 +145,8 @@ En effet, $U_n$ est la réunion des $U_d^*$ pour $d \mid n$ et les $U_d^*$ sont 
 \begin{propriete}
 	Les polynômes $\Phi_n$ sont à coefficients entiers et unitaires.
 \end{propriete}
-Si $P, Q$ sont des polynômes à coefficients entiers, et que $Q$ est unitaire, alors la division euclidienne de $P = AQ + R$ par $Q$ conduit à des polynômes $A,R$ appartenant à $\mathbb Z[X]$. De plus, $A$ est unitaire si $P, Q$ le sont.  L'utilisation de la \thref{prop:prodphi} et une récurrence forte permet de conclure que $\Phi_n$ est un polynôme à coefficients entiers unitaire pour $n \ge 1$.
+Si $P, Q$ sont des polynômes à coefficients entiers, et que $Q$ est unitaire, alors il existe des polynômes $A,R$ appartenant à $\mathbb Z[X]$ tels que $P = AQ + R$. De plus, $A$ est unitaire si $P, Q$ le sont. On prouve ce résultat en appliquant l'algorithme de calcul de la division euclidienne de polynômes dans un corps et en remarquant qu'à chaque étape le terme obtenu est à coefficient entier.\\
+L'utilisation de la \thref{prop:prodphi} et une récurrence forte permet de conclure que $\Phi_n$ est un polynôme à coefficients entiers unitaire pour $n \ge 1$.
 
 \begin{propriete}[Irréductibilité des polynômes cyclotomiques]
 	Les polynômes $\Phi_n \in \mathbb Z[X]$ sont irréductibles.

@@ -1,5 +1,11 @@
-from sps4 import cyclotomic, SqFreeFactors, np_first, np_polymul, np_polydiv
+from sps4 import (cyclotomic, SqFreeFactors, np_first, np_polymul, np_polydiv,
+                  Polyc, sr_first, sr_polymul, sr_polydiv)
 import numpy as np
+
+def test_sr_polymul():
+    assert sr_polymul(Polyc(coeffs=[1, 2]), 1).coeffs == [1, 1, -2]
+    assert sr_polymul(Polyc(coeffs=[1, 2]), 5).coeffs == [1, 2, 0, 0, 0, -1, -2]
+    assert sr_polymul(Polyc(coeffs=[1, 2]), 2).coeffs == [1, 2, -1, -2]
 
 
 def test_cyclotomic_5():
@@ -14,6 +20,18 @@ def test_cyclotomic_15():
 
 
 def test_cyclotomic_105():
-    sqf_105 = SqFreeFactors(105)
-    phi_105 = cyclotomic(sqf_105, True, np_first, np_polymul, np_polydiv)
-    assert phi_105[7] == -2.0
+    sqf = SqFreeFactors(105)
+    phi = cyclotomic(sqf, True, np_first, np_polymul, np_polydiv)
+    assert phi[7] == -2.0
+
+
+def test_cyclotomic_255255():
+    sqf = SqFreeFactors(255255)
+    phi = cyclotomic(sqf, True, sr_first, sr_polymul, sr_polydiv)
+    assert min(phi.coeffs) == -532
+
+
+def test_cyclotomic_1181895():
+    sqf = SqFreeFactors(1181895)
+    phi = cyclotomic(sqf, True, sr_first, sr_polymul, sr_polydiv)
+    assert max(phi.coeffs) == 14102773

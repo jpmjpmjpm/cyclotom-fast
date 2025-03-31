@@ -1,6 +1,8 @@
 from copy import deepcopy
+
 from sympy.functions.combinatorial.numbers import totient
 from sympy.ntheory import factorint
+# from utils.debug import dump_args
 import numpy as np
 
 
@@ -37,25 +39,74 @@ class SqFreeFactors:
         return prime
 
 
-# Numpy version of multiplication by 1-z^n
-def np_polymul(n, poly):
+# =======================================================================================
+# NUMPY versions of polynomial operations
+# =======================================================================================
+def np_polymul(poly, n):
+    """Multiply by 1 -x^n """
     poly0 = [0] * (n + 1)
     poly0[0], poly0[-1] = -1, 1
     poly = np.polymul(poly, np.poly1d(poly0))
     return poly
 
 
-# Numpy version of division by 1-z^n
-def np_polydiv(n, poly):
+def np_polydiv(poly, n):
+    """Divide by 1 -x^n """
     poly0 = [0] * (n + 1)
     poly0[0], poly0[-1] = -1, 1
     poly, _ = np.polydiv(poly, np.poly1d(poly0))
     return poly
 
 
-# Numpy version of polynomial initialization
 def np_first(alpha: bool):
     return np.poly1d([1 if alpha else -1])
+
+
+# =======================================================================================
+# SERIES versions of polynomial operations
+# =======================================================================================
+class Polyc:
+    """
+    degree: degree of the polynomial
+    coeffs: coefficients of the polynomial
+    """
+    deg: None
+    coeffs: []
+
+    def __init__(self, deg=None, coeffs=None):
+        self.deg = deg if deg else len(coeffs) - 1
+        self.coeffs = coeffs.copy() if coeffs else [0] * (deg + 1)
+
+    @staticmethod
+    def change_dim(polyc, dim):
+        new_polyc = Polyc(dim)
+        new_polyc.coeffs = [polyc.coeffs[i] for i in range(max(polyc.deg, dim))]
+        return new_polyc
+
+
+def sr_polymul(poly, n):
+    """ Multiply by 1 -x^n
+        TODO Limit number of copies """
+    coeffs = poly.coeffs.copy() + [0] * n
+    for i in range(poly.deg, -1, -1):
+        coeffs[i + n] -= coeffs[i]
+    return Polyc(coeffs=coeffs)
+
+
+def sr_polydiv(poly, n):
+    """ Divide by 1 - x^n
+        TODO Look at why only 1 + x^n is computed in the paper """
+    deg = poly.deg
+    degd = deg - n
+    coeffsd = poly.coeffs[:-n].copy()
+    for power in range(n, degd + 1, n):
+        for i in range(0, degd - power + 1):
+            coeffsd[i + power] += poly.coeffs[i]
+    return Polyc(coeffs=coeffsd)
+
+
+def sr_first(alpha: bool):
+    return Polyc(coeffs=[1 if alpha else -1])
 
 
 def cyclotomic(m: SqFreeFactors, alpha: bool, polyfirst, polymul, polydiv):
@@ -77,6 +128,7 @@ def cyclotomic(m: SqFreeFactors, alpha: bool, polyfirst, polymul, polydiv):
     return sps4(m, 1, True, polyfirst(alpha), polymul, polydiv)
 
 
+# @dump_args
 def sps4(m: SqFreeFactors, e: int, alpha: bool, poly, polymul, polydiv):
     """
     Multiply poly polynomial by Phi_m(z^e) if alpha is True otherwise by Psi_m(z^e)
@@ -99,11 +151,11 @@ def sps4(m: SqFreeFactors, e: int, alpha: bool, poly, polymul, polydiv):
 
     if alpha:
         # Multiply by 1 - z^{m·e}
-        poly = polymul(m.value * e, poly)
+        poly = polymul(poly, m.value * e)
 
         # For each prime factor p of m
         for p in m.factors.copy():
             # Divide by 1 - z^{m·e/p}
-            poly = polydiv(m.value * e // p, poly)
+            poly = polydiv(poly, m.value * e // p)
 
     return poly
