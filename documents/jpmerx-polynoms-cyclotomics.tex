@@ -16,6 +16,12 @@
 \usepackage[amsmath, standard, hyperref]{ntheorem}
 %%\usepackage{french}
 \usepackage{theoremref}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{soul}
+\usepackage{xcolor}
+\sethlcolor{yellow}
 
 \newcommand{\R}{\mathbbm{R}}
 \newcommand{\Pv}{\mathbbm{P}}
@@ -86,6 +92,7 @@
 \parindent=0pt
 
 \begin{document}
+\lstset{language=python}
 
 \title{Travail d'étude et de recherche - M1 de Mathématiques\
 Calcul des polynômes cyclotomiques}
@@ -240,7 +247,7 @@ $$\Phi_{nq}(X) = \prod_{d \in S_{n}} (1 - X^\frac{nq}{d})^{\mu(d)} = \Phi_n(X^q)
 Portant notre attention sur le cas où $2$ divise $n$, nous allons obtenir la propriété suivante:
 
 
-\begin{propriete}
+\begin{propriete}\thlabel{prop:oddprime}
 	Pour $n > 1$:
 	$$\Phi_{2n}(X) = \begin{cases}
 		\Phi_n(X^2) & \text{si } $n$ \text{ est pair}\\
@@ -253,7 +260,7 @@ Le cas $n$ pair est une application immédiate de $\ref{divphi}$. Si $n$ est imp
 On déduit d'autre part des formules précédentes $\ref{divphi}$ et $\ref{divpsi}$ pour le cas où $q \mid n$ que
 
 
-\begin{propriete}[Réduction aux cas des entiers sans facteurs carré]
+\begin{propriete}[Réduction aux cas des entiers sans facteurs carré]\thlabel{prop:nosquare}
 	Si $n = q_1^{e_1} \cdots q_k^{e_k}$ où $q_1, \dots, q_k$ sont des premiers distincts:
 	\begin{align*}
 		\Phi_{n}(X) &= \Phi_{q_1 \cdots q_k}(X^{q_1^{e_1 - 1} \cdots q_k^{e_k - 1}})\\
@@ -297,6 +304,155 @@ De l'égalité $\Phi_n(X)\Psi_n(X) = X^n-1$ il résulte d'une part que $\Psi_n(X
 Démonstration claire à partir des définitions. 
 
 \section*{Calcul des polynômes cyclotomiques}
+Dans cette section, on décrit la méthode utilisée dans l'algorithme SPS4 de l'article pour calculer de manière rapide les polynômes cyclotomiques, ainsi qu'une implémentation effectuée en Python. On commence par quelques considérations techniques.
+
+\subsection*{Éléments techniques à prendre en compte}
+
+Comme mentionné à la section précédente, la \thref{prop:oddprime} et \thref{prop:nosquare} permettent de restreindre les calculs aux polynômes cyclotomiques $\Phi_n$ pour lesquels $n$ est pair et sans facteur carré; hypothèses utilisées dans l'algorithme SPS4. Le calcul d'un polynôme cyclotomique d'ordre $n$ comportant des facteurs carrés s'effectue en utilisant la \thref{prop:nosquare}. Dans ce cas, on obtient des polynômes creux. Par souci d'économie de mémoire, on utilise alors une représentation sous la forme par exemple de dictionnaires plutôt que de simples tableaux. C'est ce qui est réalisé dans l'implémentation  
+SAGE \href{https://github.com/sagemath/sage/blob/develop/src/sage/rings/polynomial/cyclotomic.pyx}{\texttt{cyclotomic.pyx}}.\\
+
+On cherche donc à calculer de manière rapide les polynômes cyclotomiques $\Phi_n$ pour lesquels $n$ "est grand". Mais qu'entend-on par grand? Il y a au moins deux éléments importants à considérer.\\
+
+Tout d'abord l'espace mémoire nécessaire pour le stockage d'un polynôme cyclotomique $\Phi_n$. Si $n = p_1 \cdots p_k$ où $p_1, \dots, p_k$ sont $k$ premiers impairs distincts, le degré de $\Phi_n$ est égal à l'indicatrice d'Euler $\varphi(n) = (p_1-1) \cdots (p_k-1)$. Ainsi pour $n = 3 \cdot 5 \cdot 7 \cdot 11 \cdot 13 \cdot 17 \cdot 19 \cdot 23 \cdot 29$, le degré de $\Phi_n$ est égal à $1,021,870,080$ et à supposer que chacun des coefficients de $\Phi_n$ tienne sur 64 bits, on obtient un polynôme nécessitant 8 Go de mémoire. On approche ici des limites de ce qui calculable en mémoire vive sur un ordinateur personnel.\\
+
+Un autre paramètre majeur pour les implémentations est la magnitude des coefficients de $\Phi_n$. On désigne par $A(n)$ la hauteur de $\Phi_n$, c'est à dire la valeur maximale des valeurs absolues des coefficients de $\Phi_n$. Nous verrons que l'algorithme SPS4 n'utilise que des calculs sur les entiers et que seules des additions (et soustractions) sont mises en œuvre. Encore faut-il pour obtenir des calculs rapides que les entiers sur lesquels on travaille puissent-être représentés par des "entiers machine", ce qui veut généralement dire en 2025 sur 64 bits. Si ce n'est pas le cas, on fait face à un dilemme. Ou bien l'on travaille en précision entière infinie (ce qui est le cas par défaut de Python), mais on perd beaucoup en rapidité. Ou bien on teste dans tous les calculs l'overflow, ce qui est mieux, mais cependant plus lent que d'effectuer directement les additions et soustractions. L'écart de rapidité est cependant ici simplement proportionnel. Une troisième méthode est possible. Elle consiste à avoir calculé par un programme où l'on se prémunit de l'overflow le plus petit $n$, nommé $n_{64}$ pour lequel $A(n)$ reste représentable sur 64 bits, puis dans le \textit{programme définitif}, à mettre en place un calcul différent selon que l'on souhaite calculer $\Phi_n$ avec $n \ge n_{64}$ ou $n < n_{64}$.\\
+
+
+C'est cette troisième stratégie qui est implémentée dans SAGE. \texttt{cyclotomic.pyx} utilise les résultats suivants de Michael Managan:
+\begin{itemize}
+	\item Pour $n<10163195$, $A(n)$ est inférieure ou égale à 74989473, soit 26.16 bits, et on peut effectuer les calculs en 32 bits.
+	\item Pour $n=10163195$, $A(n)=1376877780831$,  soit 40.32 bits.
+	\item Si $n < 169,828,113$, $A(n)$ tient sur 60 bits.
+	\item Pour $n = 169828113$, on obtient une hauteur égale à $31484567640915734951$ qui nécessite 65 bits pour être représenté. Dans ce dernier cas, \texttt{cyclotomic.pyx} bascule sur l'utilisation de PARI avec le joli warning: \texttt{print("Warning: using PARI (slow!)")}.\\
+\end{itemize}
+
+On le voit, la hauteur $A(n)$ est importante pour la mise en œuvre d'un algorithme de calcul rapide des polynômes cyclotomiques. Pour $n \ge 3 \cdot 7 \cdot 13 \cdot 17 \cdot 23 \cdot 37 \cdot 43 = 169828113$, on n'est plus à même d'utiliser l'arithmétique 64 bits des machines. Il est alors nécessaire de faire appel à des méthodes de calcul en arithmétique infinie.\\
+
+On aborde à la section \nameref{sec:hauteur} la question de la hauteur des polynômes cyclotomiques. Revenons pour le moment à l'algorithme \texttt{SPS4}.
+
+\subsection*{Algorithme \texttt{SPS4}}
+L'algorithme \texttt{SPS4} de l'article est un récursif basé sur la formule \ref{recurphi} qui permet de calculer un polynôme cyclotomique à partir de polynômes cyclotomiques inverses d'ordres inférieurs et de la formule \ref{recurpsi} qui donne un polynôme cyclotomique inverse comme produit de polynômes cyclotomiques d'ordres inférieurs. L'algorithme est récursif et alterne l'utilisation des polynômes cyclotomiques et cyclotomiques inverses.\\
+
+Prenons par exemple $n = 3 \cdot 5 \cdot 7 = 105$. On obtient successivement les équations:
+\begin{align*}
+	\Phi_{105}(X) &= \Psi_{15}(X)\Psi_{3}(X^7)(1-X^{105})(1-X^{15})^{-1}(1-X^{21})^{-1}(1-X^{35})^{-1}\\
+	\Psi_{15}(X) &= \Phi_{5}(X) \Phi_{1}(X^3)\\
+	\Psi_{3}(X^7) &= \Phi_{1}(X^7) 
+\end{align*}
+
+En analysant le processus récursif, on constate qu'une seule procédure récursive est suffisante pour effectuer ces calculs si elle possède un paramètre permettant de choisir une récursion sur un polynôme cyclotomique ou sur un polynôme cyclotomique inverse. \\
+
+\textbf{Au terme de ce processus récursif, les seules opérations arithmétiques utilisées sont des additions et des soustractions.} En effet, dans les formules \ref{recurphi} et \ref{recurpsi}, on n'effectue effectivement que des multiplications par des polynômes de la forme $(1-X^d)$ et des divisions par de tels polynômes. Mais diviser par $(1-X^d)$, revient à multiplier par la série formelle $\displaystyle \sum_{k = 0}^\infty X^{kd}$ en s'arrêtant à un nombre de termes suffisants. C'est à dire $\varphi(n)$ pour le calcul de $\Phi_n(X)$ ou $n - \varphi(n)$ pour celui de $\Psi_n(X)$.\\
+
+
+
+\hl{Analyser en détail le nombre de termes utilisés dans \texttt{SPS4} pour les produits par $(1-X^d)^{-1}$}.\\
+
+\subsection*{Utilisation des packages listings et algorithmes}
+\begin{lstlisting}
+	# Test Latex python
+	
+	nterms = int(input("How many terms? "))
+	
+	# first two terms
+	n1, n2 = 0, 1
+	count = 0
+\end{lstlisting}
+
+\begin{algorithm}
+	\caption{Procedure $\texttt{SPS4}(m, e, \lambda, D, D_{max}, a)$: multiplication par $\Phi_m(z^e)$ ou $\Psi_m(z^e)$ }\label{alg:cap} 
+	\textbf{Input:}
+	\begin{itemize}
+		\item $m$: un entier impair sans carré, ordre du polynôme par lequel on multiplie
+		\item $\lambda$: \texttt{TRUE} si l'on multiplie par un polynôme cyclotomique, \texttt{FALSE} par un polynôme cyclotomique inverse
+		\item $a$: le polynôme $f$ courant que l'on va multiplier 
+	\end{itemize}
+	\begin{algorithmic}
+		\Require $n \geq 0$
+		\Ensure $y = x^n$
+		\State $y \gets 1$
+		\State $X \gets x$
+		\State $N \gets n$
+		\While{$N \neq 0$}
+		\If{$N$ is even}
+		\State $X \gets X \times X$
+		\State $N \gets \frac{N}{2}$  \Comment{This is a comment}
+		\ElsIf{$N$ is odd}
+		\State $y \gets y \times X$
+		\State $N \gets N - 1$
+		\EndIf
+		\EndWhile
+	\end{algorithmic}
+\end{algorithm}
+
+\section*{Hauteur des polynômes cyclotomiques}\label{sec:hauteur}
+Dans cette section, on étudie la magnitude des coefficients des polynômes cyclotomiques $\Phi_n(X)$. Dans un premier temps, pour $n$ premier ou produit de deux entiers premiers. Dans un second temps, on énoncera des résultats concernant la croissance asymptotique de la hauteur $A(n)$ des polynômes cyclotomiques.\\
+
+
+On constate que pour $p$ premier:
+$$\Phi_p(X) = \frac{X^p-1}{\Phi_1(X)} = \frac{X^p-1}{X-1} = \sum_{k=0}^{p-1} X^k,$$
+et tous les coefficients de $\Phi_p(X)$ sont égaux à $1$. Si $n$ est produit de deux entiers premiers $p,q$, on va montrer que les coefficients du polynôme cyclotomique:
+$$\Phi_{pq}(X) = \frac{(1-X)(1-X^{pq})}{(1-X^p)(1-X^q)}$$ sont dans $\{-1, 0, 1\}$. Le degré de $\Phi_{pq}(X)$ est égal à $(p-1)(q-1)$. En considérant l'égalité précédente dans l'anneau $\mathbb Z[[X]]$, où la division par $(1-X^p)(1-X^q)$ a un sens puisque le coefficient constant est égal à un, les coefficients de $\Phi_{pq}(X)$ sont donc ceux de $(1-X)(1-X^p)^{-1}(1-X^q)^{-1}$ tronqués à l'ordre $\varphi(pq)$. Prouvons tout d'abord que les coefficients $a_m$ de la série formelle
+$$S_{pq}(X) = (1-X^p)^{-1}(1-X^q)^{-1} = \sum_{m \ge 0} a_m X^m$$ sont égaux à zéro ou un pour $0 \le m < pq$. Il suffit pour cela de montrer qu'il existe au plus un couple d'entiers $(a,b) \in \mathbb N^2$ tel que $ap+bq = m$ pour $0 \le m < pq$. Or le lemme de Gauss implique que si $ap+bq = a^\prime p + b^\prime q$, il existe $r$ entier tel que $a^\prime = a -rq$ et $b^\prime = b +rp$. Sans perte de généralité, on peut supposer $b^\prime \ge b$, c'est à dire $r \ge 0$. L'hypothèse $m <pq$ implique
+$$pq > a^\prime p + b^\prime q \ge (b + r p)q \ge rpq$$ d'où $r=0$ et $(a,b)=(a^\prime, b^\prime)$.
+
+Les coefficients de $\Phi_{pq}(X)$ qui sont donc ceux de $(1-X) S_{pq}(X)$ tronqués à l'ordre $\varphi(pq)$, sont différence de deux entiers de $\{0,1\}$ et appartiennent à $\{-1,0,1\}$, ce que nous souhaitions prouver. Cette démonstration s'appuie sur un sujet de préparation à l'agrégation \cite{agreg}.  Notons que la réciproque est fausse: $\Phi_{651} = \Phi_{3 \cdot 5 \cdot 31}$ est un polynôme cyclotomique d'ordre le produit de trois premiers distincts dont les coefficients sont dans $\{-1,0,1\}$.\\
+
+On dit de $\Phi_{pq}$ dont l'ordre est produit de deux premiers distincts qu'il est binaire. Et de $\Phi_{pqr}$ qu'il est ternaire. $\Phi_{105} = \Phi_{3 \cdot 5 \cdot 7}$ est en quelque sorte le premier polynôme cyclotomique ternaire d'ordre impair. $-2$ est l'un de ses coefficients. N'importe quel entier est-il le coefficient d'un polynôme cyclotomique? La réponse est positive et on reproduit ici la preuve de cet article de Jiro Suzuki \cite{range}.\\
+
+On note $C$ les valeurs prises par l'ensemble des coefficients de tous les polynômes cyclotomiques et on commence par prouver que
+\begin{propriete}
+	pour tout entier $t > 2$, il existe $t$ nombres premiers distincts $p_1 < p_2 < \cdots < p_t$ tels que $p_1+p_2 > p_t$.
+\end{propriete}
+Dans le cas contraire, il existerait un entier $t > 2$ tel que pour tous premiers vérifiant $p_1 < p_2 < \cdots < p_t$ on ait $p_1+p_2 \le p_t$ et donc $2 p_1 < p_t$. Cela implique que pour tout entier $k$, il y a au plus $t$ nombres premiers entre $2^{k-1}$ et $2^k$ et donc que $\pi(2^k) < kt$, contrairement à ce qu'affirme le théorème des nombres premiers à savoir que 
+$$\pi(n) \underset{n \to \infty}{\sim} \frac{n}{\ln n}.$$
+
+Revenons à notre affirmation initiale à savoir que tout entier $s \in \mathbb Z$ est le coefficient $c_i^{(n)}$ d'un polynôme cyclotomique $\Phi_n$. Soit $t$ un entier impair supérieur à 2 et $p_1 < p_2 < \cdots < p_t$ $t$ nombres premiers tels que $p_1+p_2 > p_t$. Notons $p = p_t$ et $n = p_1 p_2 \cdots p_t$. On a
+$$\Phi_n(X) = \prod_{d \mid n} (1-X^d)^{\mu(\frac{n}{d})} = \sum_{i = 0}^{\varphi(n)} c_i^{(n)} X^i.$$
+Pour $r > s$, on a $p_r + p_s > p_t = p$ et par conséquent
+\begin{align*}
+	\Phi_n(X) &\equiv \prod_{i=1}^{t} (1-X^{p_i})/(1-X) &(\mathrm{mod}X^{p+1})\\
+	&\equiv (1 + X + \cdots + X^p)(1 - X^{p_1}+X^{p_2}+\cdots+X^{p_t})  &(\mathrm{mod}X^{p+1}).
+\end{align*}
+On constate que $c_p^{(n)}=-t+1$ et $c_{p-2}^{(n)}=-t+2$ ce qui montre que $\{s \in \mathbb Z \mid s \le -1\} \subseteq C$ puisque $t$ est n'importe quel nombre naturel impair supérieur ou égal à $3$.\\
+
+On sait d'autre part que pour $m$ entier positif impair
+$$\Phi_{2m}(X) = \Phi_m(-X).$$
+Si $p_1 \ge 3$, $n = p_1 p_2 \cdots p_t$ est impair, $c_p^{(2n)}=t-1$ et $c_{p-2}^{(2n)}=t-2$. On en déduit que $\{s \in \mathbb Z \mid s \ge 1\} \subseteq C$. Et finalement que $C = \mathbb Z$ puisque $c_2^{15} = 0$.\\
+
+Dans la preuve ci-dessus, on augmente indéfiniment le nombre de facteurs premiers $t$ de $n$ pour exhiber un coefficient arbitrairement grand d'un polynôme cyclotomique $\Phi_n$. Emma Lehmer démontra en 1936 \cite{infini} que les coefficients des polynômes cyclotomiques ternaires forment un ensemble infini. Pour montrer que $\limsup\limits_{n \to \infty} A(n) = \infty$, il "suffit" de considérer les polynômes cyclotomiques ternaires.\\
+
+Le mathématicien suédois Carl Severin Wigert a démontré que
+$$\limsup\limits_{n \to \infty} \frac{\log d(n)}{\log n / \log \log n} = \log 2$$ où $d(n)$ désigne le nombre de diviseurs de $n$; voir par exemple le théorème 317 de  \cite{numbers}. On utilise ce résultat pour prouver (en suivant le mathématicien américain Paul T. Bateman) que
+
+\begin{propriete}
+	$$\limsup\limits_{n \to \infty} A(n) \le \exp(n^{\log 2 / \log \log n}).$$
+\end{propriete}
+
+Partons de nouveau de l'égalité $\Phi_n(X) = \prod_{d \mid n} (1-X^d)^{\mu(\frac{n}{d})}$ et remarquons que
+\begin{itemize}
+	\item la hauteur d'un polynôme $P$ produit de polynômes $P_i = \sum_{j=0}^{n_i} p_j^{(i)} X^j$ est inférieure ou égale à la hauteur du polynôme $Q$ produit des polynômes $\widetilde{P_i} = \sum_{j=0}^{n_i} \lvert p_j^{(i)} \rvert X^j$,
+	\item $1/(1-X^d)$ est égale à la série formelle $\sum_{k \ge 0} X^{kd}$, et les termes de degré supérieurs à $\varphi(n)$, donc supérieurs ou égaux à $n$ ne contribuent pas au calcul de $\Phi_n$.\\
+\end{itemize}
+On déduit de cela que la hauteur de $\Phi_n$ est inférieure ou égal à celle du polynôme
+$$\Delta_n(X) = \prod_{d \mid n} (1 + X^d + X^{2d} + \cdots + X^{(n/d - 1)d}).$$
+La hauteur d'un produit de polynômes dont les coefficients sont tous égaux à un étant moindre que le produit des valeurs de ces polynômes en un (ce que l'on prouve par récurrence sur le nombre de polynômes), on obtient en utilisant le résultat de Carl Severin Wigert mentionné plus haut
+
+\begin{align*}
+	A(n) &< \prod_{d \mid n} (n/d) = n^{d(n)/2} = \exp\left(\frac{1}{2}d(n) \log n\right)\\
+	&< \exp\left(\frac{1}{2}2^{(1+\epsilon/2)\log n/ \log \log n}\log n\right)\\
+	&< \exp\left(2^{(1+\epsilon)\log n/ \log \log n}\right)\\
+	&= \exp\left(n^{(1+\epsilon)\log 2/ \log \log n}\right)
+\end{align*}
+
+pour tout $\epsilon > 0$ et $n$ suffisamment grand, ce qui permet de conclure.\\
+
+Le mathématicien britannique Robert Charles Vaughan a prouvé que pour une infinité d'entiers $n$
+$$A(n) > \exp\left(n^{\log 2/ \log \log n}\right).$$
+
+
+
+
 \subsection*{Éléments clefs}
 \begin{itemize}
 	\item Utilisation de la formule d'inversion de Mobiüs.
@@ -325,6 +481,20 @@ SAGE bascule sur un algorithme (plus lent) basé sur \href{https://pari.math.u-b
 \subsection*{Implémentation SymPy}
 De son côté, SymPy implémente la méthode \href{https://docs.sympy.org/latest/modules/polys/internals.html#sympy.polys.factortools.dup_zz_cyclotomic_poly}{dup\_zz\_cyclotomic\_poly}, à analyser. Il y a visiblement une arithmétique en précision infinie, basée sur gmpy2, \textit{comment s'effectue le basculement?}
 
-\section*{Considérations sur la hauteur des polynômes cyclotomiques}
+\begin{thebibliography}{9}
+	\bibitem{agreg}
+	Pierre Charollois (2015) \href{https://webusers.imj-prg.fr/~pierre.charollois/Charollois_Pbme_cyclotomiques_agreg2015.pdf}{\emph{Problème de Mathématiques Générales no. 2.}}, Université Pierre et Marie Curie.
+	
+	\bibitem{range}
+	Jiro Suzuki (1987) \href{https://projecteuclid.org/journals/proceedings-of-the-japan-academy-series-a-mathematical-sciences/volume-63/issue-7/On-coefficients-of-cyclotomic-polynomials/10.3792/pjaa.63.279.full}{\emph{On Coefficients of Cyclotomic Polynomials}}, Department of Mathematics, Sophia University
+	Wesley, Massachusetts, 2nd ed.
+	
+	\bibitem{infini}
+	Emma Lehmer (1936) \href{https://projecteuclid.org/journals/bulletin-of-the-american-mathematical-society-new-series/volume-42/issue-6/On-the-magnitude-of-the-coefficients-of-the-cyclotomic-polynomial/bams/1183498920.full}{\emph{On the magnitude of the coefficient of the cyclotomic polynomial}}, Bull. Amer. Math. Soc. 42(6): 389-392.
+	
+	\bibitem{numbers}
+	G. H. Hardy et E. M. Wright (1936)
+	\emph{An introduction to the theory of numbers}, Oxford University Press 4th edition.
+\end{thebibliography}
 
 \end{document}

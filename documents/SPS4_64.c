@@ -12,7 +12,7 @@ int factor64(Long n, Long P[10], Long * phi){ /* factors integers */
   P[i++] = m; *phi *= m-1;
   for(q=i-1,q2=0; q>q2; q--,q2++){ m=P[q]; P[q]=P[q2]; P[q2]=m; }
   return i; }
-
+/* TO BE CHECKED i is the number of prime divisors if n is squarefree else -1 */
 
 /* SPS4
 Input:

@@ -7,6 +7,11 @@ def test_sr_polymul():
     assert sr_polymul(Polyc(coeffs=[1, 2]), 5).coeffs == [1, 2, 0, 0, 0, -1, -2]
     assert sr_polymul(Polyc(coeffs=[1, 2]), 2).coeffs == [1, 2, -1, -2]
 
+def test_sr_polydiv():
+    assert sr_polydiv(Polyc(coeffs=[1, 1, -2]), 1).coeffs == [1, 2]
+    assert sr_polydiv(Polyc(coeffs=[1, 2, 0, 0, 0, -1, -2]), 5).coeffs == [1, 2]
+    assert sr_polydiv(Polyc(coeffs=[1, 2, -1, -2]), 2).coeffs == [1, 2]
+
 
 def test_cyclotomic_5():
     sqf = SqFreeFactors(5)
