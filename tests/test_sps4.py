@@ -1,4 +1,4 @@
-from sps4 import (cyclotomic, SqFreeFactors, np_first, np_polymul, np_polydiv,
+from cyclotomfast.sps4 import  (cyclotomic, SqFreeFactors, np_first, np_polymul, np_polydiv,
                   Polyc, sr_first, sr_polymul, sr_polydiv)
 import numpy as np
 

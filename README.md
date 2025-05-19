@@ -26,7 +26,7 @@ Les ouvrages [GG13, AECF, SM] pourront utilement être consultés. Le travail pe
     - [SPS4_64.c](documents/SPS4_64.c) : programme C de calcul récursif de l'article initial.
 - Répertoire [cyclotomfast](cyclotomfast) :
     - [sps4.py](cyclotomfast/sps4.py) : programmes de calculs des polynômes cyclotomiques.
-    - [test_sps4.py](cyclotomfast/test_sps4.py) : programmes de tests.
+    - [test_sps4.py](tests/test_sps4.py) : programmes de tests.
 
 # Miscellaneous
 ### [SPS4_64.c](documents/SPS4_64.c) program
