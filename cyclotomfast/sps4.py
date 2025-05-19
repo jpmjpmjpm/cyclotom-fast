@@ -87,7 +87,6 @@ class Polyc:
         return abs(max(self.coeffs, key=abs, default=0))
 
 
-
 def sr_polymul(poly, n):
     """ Multiply by 1 -x^n
         TODO Limit number of copies """
@@ -98,14 +97,12 @@ def sr_polymul(poly, n):
 
 
 def sr_polydiv(poly, n):
-    """ Divide by 1 - x^n
-        TODO Look at why only 1 + x^n is computed in the paper """
+    """ Divide by 1 - x^n """
     deg = poly.deg
     degd = deg - n
-    coeffsd = poly.coeffs[:-n].copy()
-    for power in range(n, degd + 1, n):
-        for i in range(0, degd - power + 1):
-            coeffsd[i + power] += poly.coeffs[i]
+    coeffsd = [poly.coeffs[i] if i < n else 0 for i in range(degd + 1)]
+    for i in range(n, degd + 1):
+        coeffsd[i] = coeffsd[i - n] + poly.coeffs[i]
     return Polyc(coeffs=coeffsd)
 
 
