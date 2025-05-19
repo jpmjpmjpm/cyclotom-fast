@@ -88,6 +88,7 @@
 \newtheorem{lemme}{Lemme}
 \newtheorem{corollaire}{Corollaire}
 \newtheorem{axiome}{Axiome}
+\newtheorem{rem}{Remarque}
 
 \newtheorem{exemple}{Exemple}
 \newtheorem{remarque}{Remarque}
@@ -113,40 +114,43 @@ Calcul des polynômes cyclotomiques}
 \end{abstract}
 
 \section*{Remerciements}
-Lorsque j'ai opté pour la réalisation d'un TER, j'avais à l'esprit l'étude de l'article de John Milnor sur l'existence sur la sphère de dimension 7 de structures différentielles distinctes. J'ai toujours été attiré par \emph{les bizarreries mathématiques} comme l'atteste mon site \href{https://www.mathcounterexamples.net/}{www.mathcounterexamples.net} dédié aux contre-exemples. J'ai cependant consulté avec attention la liste des TERs proposés par les enseignants du M1... et le sujet consacré au calcul des polynômes cyclotomiques a retenu mon attention. Ayant passé plusieurs années à développer des logiciels de CAO, m'arrachant les cheveux à mettre à plat des surfaces non développables et au total quarante années dans l'univers des éditeurs de logiciels, j'ai retenu cet attrayant sujet qui allie théorie et implémentation.\\
+Lorsque j'ai opté pour la réalisation d'un TER, j'avais à l'esprit l'étude de l'article de John Milnor sur l'existence sur la sphère de dimension 7 de structures différentielles distinctes. J'ai toujours été attiré par \emph{les bizarreries mathématiques} comme l'atteste mon site \href{https://www.mathcounterexamples.net/}{www.mathcounterexamples.net} dédié aux contre-exemples. J'ai cependant consulté avec attention la liste des TERs proposés par les enseignants du M1... et le sujet consacré au calcul des polynômes cyclotomiques a retenu mon attention. Ayant passé plusieurs années à développer des logiciels de CAO, m'arrachant les cheveux entre autres à mettre à plat des surfaces non développables et au total quarante années dans l'univers des éditeurs de logiciels, j'ai choisi cet attrayant sujet qui allie théorie et implémentation.\\
 
 Je tiens à remercier Pierre-Vincent Koseleff d'avoir proposé ce sujet et d'avoir encadré mes activités de TER. Les échanges que nous avons eus m'ont permis d'avoir une vue plus directe du comportement des polynômes cyclotomiques, et une ouverture sur les algorithmes utilisés en calcul formel.
 
 
 \section*{Introduction}
-Le sujet du TER est à la jonction de l'arithmétique et du calcul formel. Pour mémoire, Pierre-Vincent Koseleff l'avait formulé ainsi:\\
+Le sujet du TER est à la jonction de l'arithmétique et du calcul formel. Pour mémoire, Pierre-Vincent Koseleff l'avait ainsi formulé:\\
 
 \enquote{Dans [AM10], Arnold et Monagan proposent une méthode pour calculer efficacement et rapidement les polynômes cyclotomiques $\Phi_n$.
 	Il s’agit de comprendre les méthodes utilisées et mises en œuvre, ainsi que d’expliquer, dans le cadre du programme du Master de Mathématiques, divers points restés obscurs ou imprécis : propriétés des polynômes cyclotomiques, irréductibilité, taille des coefficients; multiplications et divisions rapides, transformation de Fourier rapide.
 	Les ouvrages [GG13, AECF, SM] pourront utilement être consultés. Le travail peut mener à des calculs explicites et un premier contact avec des logiciels de calcul formel (Sage, Maple, etc).}\\
 
-Il s'est rapidement avéré que le sujet est vaste et que des choix étaient nécessaires. J'avais dès le départ le désir de faire intervenir une part d'implémentation dans le TER. L'un des mots clés du sujet étant \emph{calcul formel}, et me voyant difficilement calculer à la main ne serait-ce que $\Phi_{3 \cdot 5 \cdot 7 \cdot 11}$, mettre la main dans du logiciel faisait sens. Pour ce faire, la première direction qui s'est imposée à moi, a été de comprendre les algorithmes décrits dans l'article et les mathématiques sous-jacentes. Réflexe subliminal: pourquoi ça marche?  La première section de ce mémoire contient les preuves des propriétés utilisées pour les algorithmes d'Arnold et Monagan, et en particulier l'algorithme récursif \texttt{SPS4}.\\
+Il s'est rapidement avéré que le sujet est vaste et que des choix étaient nécessaires. J'avais dès le départ le désir de faire intervenir une part d'implémentation dans le TER. L'un des mots clés du sujet étant \emph{calcul formel}, et me voyant difficilement calculer à la main ne serait-ce que $\Phi_{3 \cdot 5 \cdot 7 \cdot 11}$, mettre la main dans du logiciel faisait sens. Pour ce faire, la première direction qui s'est imposée à moi, a été de comprendre les algorithmes décrits dans l'article et les mathématiques sous-jacentes. Réflexe subliminal: pourquoi ça marche?  La première section de ce mémoire contient les preuves des propriétés utilisées pour les algorithmes d'Arnold et Monagan, et en particulier l'algorithme récursif \texttt{SPS4}, où SPS signifie Sparse Power Series.\\
 
 Si pour $p < q$ premiers, les coefficients du polynôme cyclotomique $\Phi_{pq}$ appartiennent à l'ensemble $\{-1, 0, 1\}$, ce n'est pas toujours le cas pour $\Phi_n$ où $n$ est le produit de trois entiers premiers ou plus. Donc si l'on souhaite implémenter un algorithme de calcul de polynômes cyclotomiques, se pose la question de la magnitude des coefficients de ces polynômes. Et ce parce que les calculs sur des entiers de \enquote{longueur infinie} sont significativement plus lents que sur ceux de \enquote{taille machine}. En conséquence, une section du mémoire est consacrée à la hauteur des polynômes cyclotomiques. C'est un sujet vaste auquel de nombreux articles sont consacrés. Je n'en aborde dans ce mémoire qu'une petite partie. Sans avoir pu résister cependant à reproduire la preuve que tout entier est le coefficient d'un polynôme cyclotomique.\\
 
-Une autre partie du mémoire introduit l'implémentation que j'ai réalisé en Python de l'algorithme \texttt{SPS4}. Les programmes, ainsi que l'ensemble des documents du mémoire sont accessibles dans le dépôt Git \href{https://github.com/jpmjpmjpm/cyclotom-fast}{jpmjpmjpm/cyclotom-fast}.
+Une autre partie du mémoire introduit l'implémentation que j'ai réalisée en Python de l'algorithme \texttt{SPS4}. Les programmes, ainsi que l'ensemble des documents du mémoire sont accessibles dans le dépôt Git \href{https://github.com/jpmjpmjpm/cyclotom-fast}{jpmjpmjpm/cyclotom-fast}.
 
 
 
 \section*{Mathématiques des polynômes cyclotomiques}
 \subsection*{Définitions}
-Pour un entier $n \ge 1$, on désigne le polynôme $$P_n(X) = X^n - 1 \in \Q[X]$$ et par $U_n$ les racines de $P_n$, c'est à dire les racines $n^{\text{ème}}$ de l'unité. $U_n$ est un sous-groupe du groupe $\mathbb U$ des complexes de module un. C'est un groupe cyclique fini. On peut le montrer en se souvenant qu'un groupe abélien fini $G$ est somme directe de ses sous-groupes $p$-maximaux $G(p)$, c'est à dire de ses éléments qui sont une puissance de $p$. Ici, on peut montrer que $G(p) = \{x \in U_n \mid x^{m_p} = 1\}$ où $m_p$ est l'ordre de $G(p)$ et donc que $G(p)$ est cyclique. On conclut sachant qu'un groupe abélien fini somme directe de groupes d'ordres premiers est cyclique.\\
+Pour un entier $n \ge 1$, on note $$P_n(X) = X^n - 1 \in \Q[X]$$ et $U_n$ les racines de $P_n$, c'est à dire les racines $n^{\text{ème}}$ de l'unité. $U_n$ est un sous-groupe du groupe $\mathbb U$ des complexes de module un. C'est un groupe cyclique fini. On peut le montrer en se souvenant qu'un groupe abélien fini $G$ est somme directe de ses sous-groupes $p$-maximaux $G(p)$, c'est à dire de ses éléments qui sont une puissance de $p$. Ici, on peut montrer que $G(p) = \{x \in U_n \mid x^{m_p} = 1\}$ où $m_p$ est l'ordre de $G(p)$ et donc que $G(p)$ est cyclique. On conclut sachant qu'un groupe abélien fini somme directe de groupes d'ordres premiers est cyclique.\\
 
 
-On désigne dans la suite par $U_n^* \subseteq U_n$ les générateurs de $U_n$, c'est à dire les éléments dont l'ordre est premier avec $n$. Le $n^{\text{ème}}$ polynôme cyclotomique $\Phi_n \in \Q[X]$ est alors défini par:
+On désigne dans la suite par $U_n^* \subseteq U_n$ les générateurs de $U_n$, c'est à dire les éléments dont l'ordre est exactement $n$. Le $n^{\text{ème}}$ polynôme cyclotomique $\Phi_n \in \Q[X]$ est:
 
-$$\Phi_n(x) = \prod_{\zeta \in U^*_n} (X - \zeta) = \prod_{\substack{j=1\\ \pgcd(j,n)=1}}^n (X - e^{\frac{2 \pi i}{n}j})$$
+$$\Phi_n(X) = \prod_{\zeta \in U^*_n} (X - \zeta) = \prod_{\substack{j=1\\ \pgcd(j,n)=1}}^n (X - e^{\frac{2 \pi i}{n}j})$$
 
-et le $n^{\text{ème}}$ polynôme cyclotomique inverse $\Psi_n \in \Q[X]$ par:
+et le $n^{\text{ème}}$ polynôme cyclotomique inverse $\Psi_n \in \Q[X]$:
 
 $$\Psi_n(x) = \prod_{\zeta \in U_n \setminus U^*_n} (X - \zeta) = \prod_{\substack{j=1\\ \pgcd(j,n) > 1}}^n (X - e^{\frac{2 \pi i}{n}j}) = \frac{X^n - 1}{\Phi_n(X)}.$$
 
-En particulier: $\Phi_1(X) = X-1$ et $\Psi_1(X) = 1$.
+En particulier: $\Phi_1(X) = X-1$ et $\Psi_1(X) = 1$.\\
+
+
+Dans la suite du document on note $\varphi(n)$ l'indicatrice d'Euler de $n$, qui est le degré de $\Phi_n$.
 
 \subsection*{Propriétés utiles au calcul des polynômes cyclotomiques}
 On s'attache maintenant à décrire et démontrer des propriétés des polynômes $\Phi_n, \Psi_n$ qui vont permettre de les calculer efficacement. 
@@ -160,14 +164,14 @@ En effet, $U_n$ est la réunion des $U_d^*$ pour $d \mid n$ et les $U_d^*$ sont 
 	Les polynômes $\Phi_n$ sont à coefficients entiers et unitaires.
 \end{propriete}
 Si $P, Q$ sont des polynômes à coefficients entiers, et que $Q$ est unitaire, alors il existe des polynômes $A,R$ appartenant à $\mathbb Z[X]$ tels que $P = AQ + R$. De plus, $A$ est unitaire si $P, Q$ le sont. On prouve ce résultat en appliquant l'algorithme de calcul de la division euclidienne de polynômes dans un corps et en remarquant qu'à chaque étape le terme obtenu est à coefficient entier.\\
-L'utilisation de la propriété \ref{prop:prodphi} et une récurrence forte permet de conclure que $\Phi_n$ est un polynôme à coefficients entiers unitaire pour $n \ge 1$.
+L'utilisation de la propriété \ref{prop:prodphi} et une récurrence forte permettent de conclure que pour $n \ge 1$ $\Phi_n$ est un polynôme unitaire à coefficients entiers.
 
 \begin{propriete}[Irréductibilité des polynômes cyclotomiques]
 	Les polynômes $\Phi_n \in \mathbb Z[X]$ sont irréductibles.
 \end{propriete}
 On démontre cette propriété bien qu'elle ne soit pas utile pour les algorithmes utilisés ici pour leur calcul.\\
 
-Soit $\zeta$ une racine primitive $n$-ième de l'unité, $p$ un nombre premier avec $n$ et $f,g \in \mathbb Q[X]$ les polynômes minimaux unitaires de $\zeta$ et $\zeta^p$. Montrons que $f,g$ sont à coefficients entiers. $\mathbb Z$ étant factoriel, $\mathbb Z[X]$ l'est également et $\Phi_n = f_1^{\alpha_1} \cdots f_r^{\alpha_r}$ où $f_1, \dots ,f_r \in \mathbb Z[X]$. $\Phi_n$ étant unitaire, on peut supposer que les $f_i$ le sont aussi. $\zeta$ est racine de l'un des $f_i$, qui est irréductible sur $\mathbb Z$ et donc sur $\mathbb Q$. Par conséquent, $f$ est l'un des $f_i$, $g$ aussi puisque $\zeta^p$ est racine de $\Phi_n$ et $f,g$ divisent $\Phi_n$ dans $\mathbb Z[X]$.\\
+Soit $\zeta$ une racine primitive $n$-ième de l'unité, $p$ un nombre premier avec $n$ et $f,g \in \mathbb Q[X]$ les polynômes minimaux unitaires de $\zeta$ et $\zeta^p$. Montrons que $f,g$ sont à coefficients entiers. $\mathbb Z$ étant factoriel, $\mathbb Z[X]$ l'est également et $\Phi_n = f_1^{\alpha_1} \cdots f_r^{\alpha_r}$ où $f_1, \dots ,f_r \in \mathbb Z[X]$ sont supposés irréductibles. $\Phi_n$ étant unitaire, on peut supposer que les $f_i$ le sont aussi. $\zeta$ est racine de l'un des $f_i$, qui est irréductible sur $\mathbb Z$ et donc sur $\mathbb Q$. Par conséquent, $f$ est l'un des $f_i$, $g$ aussi puisque $\zeta^p$ est racine de $\Phi_n$ et $f,g$ divisent $\Phi_n$ dans $\mathbb Z[X]$.\\
 
 Montrons que $f=g$. Dans le cas contraire, $f,g$ étant irréductibles, le produit $f \cdot g$ diviserait $\Phi_n$ dans $\mathbb Z[X]$. $\zeta^p$ étant racine de $g$, $\zeta$ est racine de $g(X^p)$ et $f(X)$ divise $g(X^p)$ dans $\mathbb Q[X]$, donc aussi dans $\mathbb Z[X]$ puisque $f$ est unitaire. On écrit $g(X^p) = f(X)h(X)$ avec $h \in \mathbb Z[X]$.\\
 
@@ -199,7 +203,7 @@ Nous définissons maintenant la fonction de Möbius $\mu : \mathbb N^* \to \{-1,
 		\item Si $n >1$, $\displaystyle \sum_{d \mid n} \mu(d) = 0$.
 	\end{enumerate}
 \end{propriete}
-Si $m$ ou $n$ est égal à $1$, la première propriété est évidente. Si $m,n$ sont premiers entre eux, $\mu(mn)=\mu(m)\mu(n)$. Quantité qui est nulle si $m$ ou $n$ a un facteur premier carré. Dans le cas contraire, le nombre de facteurs premiers de $mn$ est la somme des nombres de facteurs premiers de $m$ et $n$.\\
+Si $m$ ou $n$ est égal à $1$, la première propriété est évidente. Supposons $m,n$ premiers entre eux et plus grands que un. Si $m$ ou $n$ a un facteur premier carré,  $\mu(mn)=\mu(m)\mu(n) = 0$. Dans le cas contraire, le nombre de facteurs premiers de $mn$ est la somme des nombres de facteurs premiers de $m$ et $n$ et $\mu(mn)=\mu(m)\mu(n)$ à nouveau.\\
 
 Concernant la seconde propriété, supposons que $n = \displaystyle \prod_{n = 1}^r p_1^{\alpha_1} \cdots p_r^{\alpha_r}$ où $\{p_1, \dots p_r\}$ sont des premiers distincts et $\alpha_1, \dots, \alpha_r$ des entiers supérieurs ou égaux à $1$. Dans la somme $\displaystyle \sum_{d \mid n} \mu(d)$, seuls les diviseurs $d$ de $n$ sans facteur premier carré ont une contribution, ce qui conduit à l'égalité:
 $$\sum_{d \mid n} \mu(d) = \sum_{i = 0}^{r}\sum_{\substack{S \subseteq \{p_1, \dots, p_r\}\\ \left\vert S \right\vert = i}} (-1)^i = \sum_{i = 0}^{r} \binom{r}{i}(-1)^i =(1-1)^r=0.$$
@@ -244,12 +248,14 @@ $$\Phi_{nm}(X) \Psi_{nm}(X) = X^{nm}-1 = (X^p)^m-1=\Phi_{n}(X^m) \Psi_{n}(X^m).$
 $$\Psi_{np}(X) = \frac{X^{np}-1}{\Phi_{np}(X)} =\frac{X^{np}-1}{\Phi_{n}(X^p)}\Phi_n(X)=\Psi_n(X^p)\Phi_n(X)$$ montrant $\ref{ndivpsi}$. De manière similaire, on déduit $\ref{divpsi}$ de $\ref{divphi}$.\\
 
 Pour $n$ entier, nous noterons dorénavant $D_n$ l'ensemble des diviseurs de $n$ sans facteurs carré. On peut réécrire \ref{mobphi}
-$$\Phi_{n}(X) = \prod_{d \in S_n} (1 - X^\frac{n}{d})^{\mu(d)}.$$ Si $d$ est un diviseur de $np$ sans facteur premier, ou bien $d$ divise $n$, ou bien $d$ est de la forme $d^\prime p$. D'où l'égalité
-$$\Phi_{np}(X) = \prod_{d \in S_{n}} (1 - X^\frac{np}{d})^{\mu(d)}
-\prod_{dp \in S_{np}} (1 - X^\frac{np}{dp})^{\mu(dp)}.$$ Le premier facteur est $\Phi_{n}(X^p)$. Observons que dans le second, $dp$ étant sans facteurs carré, $d$ est premier avec $p$ et donc $\mu(dp)= \mu(d)\mu(p)= - \mu(d)$. Ce second facteur est simplement l'inverse de $\Phi_{n}$: nous avons prouvé $\ref{ndivphi}$.\\
+$$\Phi_{n}(X) = \prod_{d \in D_n} (1 - X^\frac{n}{d})^{\mu(d)}.$$ Si $d$ est un diviseur sans facteur carré de $np$, ou bien $d$ divise $n$, ou bien $d$ est de la forme $d^\prime p$. D'où l'égalité
+$$\Phi_{np}(X) = \prod_{d \in D_{n}} (1 - X^\frac{np}{d})^{\mu(d)}
+\prod_{dp \in D_{np}} (1 - X^\frac{np}{dp})^{\mu(dp)}.$$ Le premier facteur est $\Phi_{n}(X^p)$. Observons que dans le second, $dp$ étant sans facteurs carré, $d$ est premier avec $p$ et donc $\mu(dp)= \mu(d)\mu(p)= - \mu(d)$. Ce second facteur est simplement l'inverse de $\Phi_{n}$: nous avons prouvé $\ref{ndivphi}$.\\
 
 Il nous reste à prouver $\ref{divphi}$. Puisque $q$ divise $n$, les diviseurs sans facteurs carré de $nq$ sont ceux de $n$ et
-$$\Phi_{nq}(X) = \prod_{d \in S_{n}} (1 - X^\frac{nq}{d})^{\mu(d)} = \Phi_n(X^q),$$ qui est le résultat souhaité.\\
+$$\Phi_{nq}(X) = \prod_{d \in D_{n}} (1 - X^\frac{nq}{d})^{\mu(d)} = \Phi_n(X^q),$$ qui est le résultat souhaité.\\
+
+\textbf{Remarque:} il est aussi possible de démontrer ces formules sans faire appel aux formules closes en raisonnant sur les propriétés des racines primitives de l'unité.\\
 
 Portant notre attention sur le cas où $2$ divise $n$, nous allons obtenir la propriété suivante:
 
@@ -293,8 +299,6 @@ puisque $\Psi_{m_1}(X^{e_1}) = \Psi_{1}(X^{e_1}) =1$. L'utilisation de la formul
 	\end{align*}
 \end{propriete}
 
-On note dans la suite du document $\varphi(n)$ l'indicatrice d'Euler de $n$.
-
 \begin{propriete}[Palindromie des polynômes cyclotomiques]
 	Pour $n > 1$ impair, le polynôme $\Phi_n(X) = \sum_{i=0}^{\varphi(n)} a_i X^i$ est palindromique tandis que $\Psi_n(X) = \sum_{j=0}^{n-\varphi(n)} b_j X^j$ est anti-palindromique, ce qui signifie que
 	$$a_i=a_{\varphi(n)-i} \text{ et } b_j=-b_{n-\varphi(n)-j}.$$
@@ -318,14 +322,14 @@ $$\Phi_{np}(X) = \frac{\Phi_n(X^p)}{\Phi_n(X)}$$ où $p$ premier ne divise pas $
 
 Les autres algorithmes de l'article s'appuient sur la formule close $\ref{mobphi}$:
 $$\Phi_n(X) =  \prod_{d \mid n} (1 - X^d)^{\mu(\frac{n}{d})}.$$
-L'algorithme \texttt{SPS} utilise directement cette formule et la palindromicité de $\Phi_n$. Cependant, les calculs sont effectués à chaque étape sur l'ensemble des coefficients de $\Phi_n$, qui rappelons le sont au nombre de $\varphi(n)$. L'algorithme \texttt{SPS-Psi} est le pendant de \texttt{SPS} pour les polynômes cyclotomiques inverses.\\
+L'algorithme \texttt{SPS} utilise directement cette formule et la palindromicité de $\Phi_n$. Cependant, les calculs sont effectués à chaque étape sur l'ensemble des coefficients de $\Phi_n$, qui rappelons le sont au nombre de $\varphi(n)+1$. L'algorithme \texttt{SPS-Psi} est le pendant de \texttt{SPS} pour les polynômes cyclotomiques inverses.\\
 
 L'algorithme \texttt{SPS2} utilise la formule:
 $$\Phi_{mp}(X) = - \Psi_m(X) \Phi_m(X^p) \frac{1}{1 - X^m}.$$ Si bien que pour calculer $\Phi_{n}$ où $n = mp$ et $p$ le plus grand diviseur premier de $n$, on peut utiliser la procédure \texttt{SPS-Psi} sur un polynôme de degré $m - \varphi(m)$ au lieu d'effectuer des calculs sur des polynômes de degré $\varphi(n)$. Cependant, cet avantage n'est utilisé qu'une fois pour $\Psi_m(X)$.\\
 
 L'algorithme \texttt{SPS3} utilise quant à lui ce bénéfice de manière itérative en appliquant la formule précédente à $\Phi_m(X^p)$.\\
 
-L'article d'Arnold et Monagan compare les performances des algorithmes des algorithmes proposés en fournissant un tableau contenant les temps de calcul pour différents polynômes cyclotomiques. Cependant, il n'y a pas d'analyse détaillée des échelles en temps des algorithmes. Ces échelles de temps sont mentionnées dans une autre version de l'article \cite{monagan+}.\\
+L'article d'Arnold et Monagan compare les performances des algorithmes proposés en fournissant un tableau contenant les temps de calcul pour différents polynômes cyclotomiques. Cependant, il n'y a pas d'analyse détaillée des échelles en temps des algorithmes. Ces échelles de temps sont mentionnées dans une autre version de l'article \cite{monagan+}.\\
 
 Dans la suite de cette section, on décrit la méthode utilisée dans l'algorithme \texttt{SPS4} de l'article pour calculer de manière rapide les polynômes cyclotomiques, ainsi qu'une implémentation effectuée en Python. On commence par quelques considérations techniques.
 
@@ -341,7 +345,7 @@ Tout d'abord l'espace mémoire nécessaire pour le stockage d'un polynôme cyclo
 Un autre paramètre majeur pour les implémentations est la magnitude des coefficients de $\Phi_n$. On désigne par $A(n)$ la hauteur de $\Phi_n$, c'est à dire la valeur maximale des valeurs absolues des coefficients de $\Phi_n$. Nous verrons que l'algorithme \texttt{SPS4} n'utilise que des calculs sur les entiers et que seules des additions (et soustractions) sont mises en œuvre. Encore faut-il pour obtenir des calculs rapides que les entiers sur lesquels on travaille puissent-être représentés par des "entiers machine", ce qui veut généralement dire en 2025 sur 64 bits. Si ce n'est pas le cas, on fait face à un dilemme. Ou bien l'on travaille en précision entière infinie (ce qui est le cas par défaut de Python), mais on perd beaucoup en rapidité. Ou bien on teste dans tous les calculs l'overflow, ce qui est mieux, mais cependant plus lent que d'effectuer directement les additions et soustractions. L'écart de rapidité est cependant ici simplement proportionnel. Une troisième méthode est possible. Elle consiste à avoir calculé par un programme où l'on se prémunit de l'overflow le plus petit $n$, nommé $n_{64}$ pour lequel $A(n)$ reste représentable sur 64 bits, puis dans le \textit{programme définitif}, à mettre en place un calcul différent selon que l'on souhaite calculer $\Phi_n$ avec $n \ge n_{64}$ ou $n < n_{64}$.\\
 
 
-C'est cette troisième stratégie qui est implémentée dans SAGE. \texttt{cyclotomic.pyx} utilise les résultats suivants de Michael Managan:
+C'est cette troisième stratégie qui est implémentée dans SAGE. \texttt{cyclotomic.pyx} utilise les résultats suivants de Michael Monagan:
 \begin{itemize}
 	\item Pour $n<10163195$, $A(n)$ est inférieure ou égale à 74989473, soit 26.16 bits, et on peut effectuer les calculs en 32 bits.
 	\item Pour $n=10163195$, $A(n)=1376877780831$,  soit 40.32 bits.
@@ -349,7 +353,7 @@ C'est cette troisième stratégie qui est implémentée dans SAGE. \texttt{cyclo
 	\item Pour $n = 169828113$, on obtient une hauteur égale à $31484567640915734951$ qui nécessite 65 bits pour être représenté. Dans ce dernier cas, \texttt{cyclotomic.pyx} bascule sur l'utilisation de PARI avec le joli warning: \texttt{print("Warning: using PARI (slow!)")}.\\
 \end{itemize}
 
-On le voit, la hauteur $A(n)$ est importante pour la mise en œuvre d'un algorithme de calcul rapide des polynômes cyclotomiques. Pour $n \ge 3 \cdot 7 \cdot 13 \cdot 17 \cdot 23 \cdot 37 \cdot 43 = 169828113$, on n'est plus à même d'utiliser l'arithmétique 64 bits des machines. Il est alors nécessaire de faire appel à des méthodes de calcul en arithmétique infinie.\\
+On le voit, la hauteur $A(n)$ est importante pour la mise en œuvre d'un algorithme de calcul rapide des polynômes cyclotomiques. Pour $n \ge 3 \cdot 7 \cdot 13 \cdot 17 \cdot 23 \cdot 37 \cdot 43 = 169828113$, on n'est plus à même d'utiliser l'arithmétique 64 bits des machines. Il est alors nécessaire d'invoquer des méthodes de calcul en arithmétique infinie.\\
 
 On aborde dans une section dédiée la question de la hauteur des polynômes cyclotomiques. Revenons pour le moment à l'algorithme \texttt{SPS4}.
 
@@ -375,10 +379,19 @@ En analysant le processus récursif, on constate qu'une seule procédure récurs
 	\includegraphics{cyclotomic-highperf-sps4.eps}
 \end{figure}
 
-J'ai réalisé une implémentation en Python disponible dans le dépôt Git \href{https://github.com/jpmjpmjpm/cyclotom-fast/blob/master/cyclotomfast/sps4.py}{sps4.py}. J'ai validé son fonctionnement en vérifiant que la hauteur des polynômes calculés est bien celle fournie dans l'article d'Arnold et Monagan. Cette version n'est qu'un prototype qui pourrait-être amélioré d'une part n'allouant qu'une fois la mémoire nécessaire au calcul du polynôme cyclotomique et d'autre part en faisant appel à la compilation pour les boucles internes de calcul.\\
+Dans cet algorithme, la division par $1- X^d$ est effectuée en une seule boucle, ce qui m'avait intrigué. La raison en est la suivante. Supposons que $B(X) = \sum_{i=0}^\infty b_i X^i$ soit une série formelle (ou un polynôme) et que l'on cherche à calculer $C(X) = B(X) (1-X^d)^{-1}$. On a:
+\begin{align*}
+	C(X) &= \sum_{i=0}^\infty c_i X^i=B(X) (1-X^d)^{-1}\\
+	&= \left(\sum_{i=0}^\infty b_i X^i\right)\left(1 + X^d + X^{2d} + \cdots\right)\\
+	&= \sum_{i=0}^\infty\left(b_i + b_{i-d} + b_{i-2d} + \cdots\right) X^i
+\end{align*}
 
+On observe que le terme de degré $i$ de $C(X)$ ne dépend que des termes de degré inférieur ou égal de $B(X)$. En particulier, $c_i = b_i$ pour $0 \le i \le d$. Pour $i > d$ et $q = \sup \{r \ge 0 \mid i-rd \ge 0\}$:
+$$c_i = b_i + b_{i-d} + \cdots + b_{i-qd}$$ tandis que
+$$c_{i-d} = b_{i-d} + b_{i-d} + \cdots + b_{i-qd}.$$ D'où
+$$c_i = c_{i-d} + b_i$$ pour $i > d$. On obtient un calcul en temps linéaire au lieu d'un temps quadratique par la méthode naïve qui recalcule de manière inutile des termes intermédiaires.\\
 
-\hl{Analyser en détail le nombre de termes utilisés dans \texttt{SPS4} pour les produits par $(1-X^d)^{-1}$}.\\
+J'ai réalisé une implémentation en Python disponible dans le dépôt Git \href{https://github.com/jpmjpmjpm/cyclotom-fast/blob/master/cyclotomfast/sps4.py}{sps4.py}. J'ai validé son fonctionnement en vérifiant que la hauteur des polynômes calculés est bien celle fournie dans l'article d'Arnold et Monagan. Cette version n'est qu'un prototype qui pourrait-être amélioré d'une part en n'allouant qu'une fois la mémoire nécessaire au calcul du polynôme cyclotomique et d'autre part en faisant appel à la compilation pour les boucles internes de calcul.\\
 
 \section*{Hauteur des polynômes cyclotomiques}\label{sec:hauteur}
 Dans cette section, on étudie la magnitude des coefficients des polynômes cyclotomiques $\Phi_n(X)$. Dans un premier temps, pour $n$ premier ou produit de deux entiers premiers. Dans un second temps, on énoncera des résultats concernant la croissance asymptotique de la hauteur $A(n)$ des polynômes cyclotomiques.\\
@@ -407,7 +420,7 @@ $$\Phi_n(X) = \prod_{d \mid n} (1-X^d)^{\mu(\frac{n}{d})} = \sum_{i = 0}^{\varph
 Pour $r > s$, on a $p_r + p_s > p_t = p$ et par conséquent
 \begin{align*}
 	\Phi_n(X) &\equiv \prod_{i=1}^{t} (1-X^{p_i})/(1-X) &(\mathrm{mod} \, X^{p+1})\\
-	&\equiv (1 + X + \cdots + X^p)(1 - X^{p_1}+X^{p_2}+\cdots+X^{p_t})  &(\mathrm{mod} \, X^{p+1}).
+	&\equiv (1 + X + \cdots + X^p)(1 - X^{p_1}-X^{p_2}-\cdots-X^{p_t})  &(\mathrm{mod} \, X^{p+1}).
 \end{align*}
 On constate que $c_p^{(n)}=-t+1$ et $c_{p-2}^{(n)}=-t+2$ ce qui montre que $\{s \in \mathbb Z \mid s \le -1\} \subseteq C$ puisque $t$ est n'importe quel nombre naturel impair supérieur ou égal à $3$.\\
 
@@ -445,34 +458,22 @@ pour tout $\epsilon > 0$ et $n$ suffisamment grand, ce qui permet de conclure.\\
 Le mathématicien britannique Robert Charles Vaughan a lui prouvé que pour une infinité d'entiers $n$
 $$A(n) > \exp\left(n^{\log 2/ \log \log n}\right).$$
 
+\section*{Conclusion}
+L'article d'Arnold et Monagan m'a intéressé à de nombreux titres. Il permet de découvrir de multiples facettes des polynômes cyclotomiques au travers d'algorithmes pour leur calcul. À ce sujet, la \enquote{survey} \cite{survey} de Carlo Sanna est une mine d'or.\\
 
-\subsection*{Éléments clefs}
-\begin{itemize}
-	\item Utilisation de la formule d'inversion de Mobiüs.
-	\item Et des polynômes cyclotomiques inverses.
-	\item Formules (LEMME 1) liant les polynômes cyclotomiques et polynômes cyclotomiques inverses pour les produits d'un entier par une entier premier. Ces formules font appel à la division de polynômes.
-	\item Pour la division de polynômes, il est possible d'utiliser un algorithme FFT. L'article décrit des calculs dans des corps de cardinal premier et reconstruction par le théorème des restes chinois. Il mentionne \textit{"For even though the numerator is sparse, the denominator and quotient are typically dense."}
-	\item Analyser les problèmes provenant de la taille des entiers manipulés. En particulier, \texttt{Python} utilise pour les entiers une arithmétique sans limite de taille. \textit{Quelle est l'implication pour les performances?}
-	\item La formule 3.14 est importante, car elle permet de transformer une division par un polynôme cyclotomique en un produit par un polynôme cyclotomique inverse et une division par un polynôme de la forme $1 - z^m$.
-	\item Et en utilisant des résultats de séries formelles, cela revient à effectuer une multiplication par une série $1 + z^m + z^{2m} + \dots$... où il est nécessaire de contrôler le nombre de termes à conserver de la série.
-	\item Les propriétés palindromiques des polynômes cyclotomiques permettent quant à elle de diviser par deux le nombre de coefficients à calculer. Le LEMME 4 étend ces propriétés aux produits de polynômes cyclotomiques (et de polynômes cyclotomiques inverses).
-	\item Ces propriétés peuvent-être utilisées dans tous les calculs intermédiaires.
-	\item Les formules 3.17 et 3.19 indiquent comment calculer les polynômes cyclotomiques (et cyclotomiques inverses) à partir des précédents.
-	\item Pour de "très grands" polynômes cyclotomiques, on peut être amené à calculer "trop de termes" $\implies$ voir remarque 3.22.
-	\item \textit{Analyser le dernier algorithme récursif!!!}
-\end{itemize}
+Après avoir passé quelques semaines au côté de cet article, j'ai l'impression d'y découvrir en filigrane le cheminement de la pensée des deux auteurs. Lorsque en 2010 Arnold et Monagan ont entamé leurs travaux, il fallait cinq minutes à Maple 13 pour calculer $\Phi_{255255}(X)$... et une seconde après qu'ils aient mis en œuvre leur algorithme.\\
 
-\subsection*{Algorithmes de l'article}
+On comprend que la méthode qui vient rapidement à l'esprit pour calculer $\Phi_n$ est basée sur la formule:
+$$\Phi_{np}(X) = \frac{\Phi_n(X^p)}{\Phi_n(X)}$$ et qu'alors la rapidité des divisions de polynômes est un facteur critique. Arnold et Monagan exploitent de manière intense cette première voie. Puis ils explorent une autre route utilisant la formule close qui caractérise les polynômes cyclotomiques. Ce qui présente de nombreux avantages. En particulier de n'utiliser que des additions et des soustractions dans les calculs. Cependant, la formule close masque partiellement les bénéfices d'un calcul itératif. Ils cherchent alors à les retrouver en mixant les deux options.\\
 
-\subsection*{Implémentation SAGE}
-SAGE implémente la méthode  \texttt{cyclotomic\_coeffs} \href{https://github.com/sagemath/sage/blob/develop/src/sage/rings/polynomial/cyclotomic.pyx}{ici}. Lorsque la hauteur du polynôme à calculer dépasse:
-\begin{verbatim}
-	cdef long fits_long_limit = 169828113 if sizeof(long) >= 8 else 10163195
-\end{verbatim}
-SAGE bascule sur un algorithme (plus lent) basé sur \href{https://pari.math.u-bordeaux.fr/}{PARI/GP} en précision infinie.
+Maintenant, ils sont à même de calculer en un temps court des polynômes cyclotomiques qui ne sont plus que de simples jouets! Surgi le problème de la magnitude des coefficients des polynômes cyclotomiques et les difficultés matérielles. Un ordinateur travaille vite sur des entiers 64 bits. Estimer la hauteur des polynômes cyclotomiques devient essentiel.\\
 
-\subsection*{Implémentation SymPy}
-De son côté, SymPy implémente la méthode \href{https://docs.sympy.org/latest/modules/polys/internals.html#sympy.polys.factortools.dup_zz_cyclotomic_poly}{dup\_zz\_cyclotomic\_poly}, à analyser. Il y a visiblement une arithmétique en précision infinie, basée sur gmpy2, \textit{comment s'effectue le basculement?}
+J'ai aussi apprécié de mettre en œuvre l'algorithme \texttt{SPS4}. Cela m'a permis de comprendre de manière concrète son fonctionnement. Il est satisfaisant de voir s'afficher en une seconde les 92161 coefficients de $\Phi_{255255}(X)$!\\
+
+Et ensuite? J'achève un nouveau M1 cette année, dans une position d'étudiant un peu atypique, à soixante ans passés. Avec toujours cet intérêt pour les mathématiques qui ne m'a jamais quitté ainsi que ce goût de l'ingénieur pour produire des choses concrètes fût-ce du logiciel.\\
+
+Alors pourquoi ne pas participer à des travaux en calcul formel en tant que retraité; histoire de ne pas aller à la pêche tous les jours. L'avenir le dira.
+
 
 \begin{thebibliography}{9}
 	\bibitem{monagan+}

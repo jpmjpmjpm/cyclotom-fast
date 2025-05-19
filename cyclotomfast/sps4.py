@@ -83,6 +83,10 @@ class Polyc:
         new_polyc.coeffs = [polyc.coeffs[i] for i in range(max(polyc.deg, dim))]
         return new_polyc
 
+    def height(self):
+        return abs(max(self.coeffs, key=abs, default=0))
+
+
 
 def sr_polymul(poly, n):
     """ Multiply by 1 -x^n
