@@ -1,0 +1,190 @@
+
+\documentclass{beamer}
+\usetheme{Warsaw}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{amsmath,latexsym}
+\usepackage{amssymb}
+\usepackage{bbm}
+\usepackage{tikz}
+
+\setbeamercovered{transparent}
+
+\newcommand{\R}{\mathbbm{R}}
+\newcommand{\Pv}{\mathbbm{P}}
+\newcommand{\Ps}{\mathcal{P}}
+\newcommand{\Rs}{\mathcal{R}}
+\newcommand{\N}{\mathbbm{N}}
+\newcommand{\Fs}{\mathbbm{F}}
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\T}{\mathcal{T}}
+\newcommand{\Ns}{\mathcal{N}}
+\newcommand{\Z}{\mathbbm{Z}}
+\newcommand{\Zs}{\mathcal{Z}}
+\newcommand{\Q}{\mathbbm{Q}}
+\newcommand{\Qs}{\mathcal{Q}}
+\newcommand{\Fpol}{\mathcal{F}_{Pol}}
+\newcommand{\Flin}{\mathcal{F}/_{\equiv}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\Ls}{\mathcal{L}}
+\newcommand{\A}{\mathrm{A}}
+\newcommand{\Ss}{\mathcal{S}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\K}{\mathcal{K}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\Bo}{[}
+\newcommand{\Bf}{]}
+\newcommand{\ind}{\textrm{ind}}
+\newcommand{\dom}{\mbox{dom }}
+\newcommand{\ZFC}{\textbf{\mbox{ZFC}}}
+\newcommand{\CD}{\textbf{\mbox{CD}}}
+\newcommand{\PfN}{\mathcal{P}_f(\N)}
+\newcommand{\PcofE}{\mathcal{P}_{cof}(E)}
+\newcommand{\OO}{\mathcal{O}}
+\newcommand{\inp}{\in_{\varphi}}
+\newcommand{\pgcd}{\mathrm{pgcd}}
+
+
+\title{TER - Calcul rapide des polynômes cyclotomiques}
+\author{Jean-Philippe Merx}
+\institute{M1 Mathématiques - Sorbonne Université}
+\date{Mai 2025}
+
+
+\begin{document}
+	
+	\frame{\titlepage}
+	
+	\mode<handout>{
+		\begin{frame}
+			\frametitle{Table des matières}
+			\tableofcontents
+		\end{frame}
+	}
+	
+	\newtheorem{theoreme}{Théorème}
+	\newtheorem{proposition}{Proposition}
+	
+	\section{Introduction}
+	
+	\begin{frame}
+		\frametitle{Contenu du TER}
+		\begin{itemize}
+			\item Analyser l'article d'Andrew Arnold et Michael Monagan sur le calcul rapide des polynômes cyclotomiques
+			\item Expliquer les méthodes et algorithmes utilisés
+			\item Éventuellement réaliser une mise en œuvre et utiliser des logiciels de calcul formel
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Définition des polynômes cyclotomiques}
+		\begin{itemize}
+			\item Si $U_n$ est le groupe cyclique des racines $n$-ième complexes de l'unité, le polynôme cyclotomique $\Phi_n$ est:
+			$$\Phi_n(X) = \prod_{\zeta \in U^*_n} (X - \zeta) = \prod_{\substack{j=1\\ \pgcd(j,n)=1}}^n (X - e^{\frac{2 \pi i}{n}j})$$ où $U_n^* \subseteq U_n$ est l'ensemble des générateurs de $U_n$.
+			\item Polynôme cyclotomique inverse:
+			$$\Psi_n(x) = \prod_{\zeta \in U_n \setminus U^*_n} (X - \zeta) = \prod_{\substack{j=1\\ \pgcd(j,n) > 1}}^n (X - e^{\frac{2 \pi i}{n}j}) = \frac{X^n - 1}{\Phi_n(X)}.$$
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{De l'importance des diviseurs de $n$}
+		\begin{itemize}
+			\item $\Phi_n \in \mathbb Z[X]$ de degré $\varphi(n)$ où $\varphi$ est l'indicatrice d'Euler et:
+			$$P_n(X) = X^n-1 = \prod_{ d \mid n} \Phi_d(X)$$
+			\item Pour $p$ premier ne divisant pas $n$:
+			$$\Phi_{np}(X) = \frac{\Phi_n(X^p)}{\Phi_n(X)} \text{ et } \Psi_{np}(X) = \Psi_n(X^p)\Phi_n(X)$$
+			et pour $q$ premier divisant $n$
+			$$\Phi_{nq}(X) = \Phi_n(X^q) \text{ et } \Psi_{nq}(X) = \Psi_n(X^q)$$
+		\end{itemize}
+	\end{frame}
+
+	\section{Un premier algorithme}
+
+	\begin{frame}
+		\frametitle{Restriction à $n$ produit de premiers impairs distincts}
+		\begin{itemize}
+			\item Comme on a aussi: $$\Phi_{2n}(X) = \Phi_n(X^2) \text{ si } 2 \mid n \text{ et }\Phi_{2n}(X) = \Phi_n(-X) \text{ sinon}$$ $\implies$ il suffit de considérer $n$ produit de premiers impairs distincts.
+			\item D'où un premier algorithme possible pour $n = p_1^{e_1} \cdots p_k^{e_k}$:
+			\begin{itemize}
+				\item Itérations pour calculer $\Phi_m(X) = \Phi_{p_1 \cdots p_k}(X)$
+				\item Calcul de $\Phi_{n/m}(X)$
+			\end{itemize}
+			\item Les divisions de polynômes sont la base de l'algorithme
+			\item Utilisation d'une division rapide avec Newton sur séries formelles et FFT
+		\end{itemize}
+	\end{frame}
+
+	\section{Formules closes et algorithmes et algorithmes SPS}
+
+	\begin{frame}
+		\frametitle{Formules closes}
+		Si $\mu : \mathbb N^* \to \{-1, 0, 1\}\}$ est la fonction de Möbius:
+		\begin{displaymath}
+			\mu(n) = :
+			\begin{cases}
+				1 & \text{si } n = 1\\
+				0 & \text{si } n \text{ a un facteur premier carré}\\
+				(-1)^r & \text{où } $r$ \text{ est le nombre de facteurs premiers de } $n$\\
+			\end{cases}
+		\end{displaymath}
+		on a:
+		\begin{align}		
+			\Phi_n(X) = \prod_{d \mid n} (1 - X^\frac{n}{d})^{\mu(d)} \tag{2.4}\label{mobphi}\\
+			\Psi_n(X) = -\prod_{d \mid n, d<n} (1 - X^d)^{-\mu(\frac{n}{d})}\tag{2.5}\label{mobpsi}
+		\end{align}
+	\end{frame}
+
+	\begin{frame}
+		\frametitle{Points critiques pour l'implémentation}
+		\begin{itemize}
+			\item \textbf{RAPIDITÉ} $\implies$ type d'algorithme
+			\item \textbf{Taille mémoire}: pour $n = 3 \cdot 5 \cdot 7 \cdot 11 \cdot 13 \cdot 17 \cdot 19 \cdot 23 \cdot 29$, $\deg \Phi_n = 1,021,870,080$ et on obtient un polynôme nécessitant au moins 8 Go de mémoire.
+			\item \textbf{Hauteur} $A(n)$: quel type de données manipuler?\\
+			Un sujet en soi sur lequel on revient plus loin		
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}
+		\frametitle{Algorithmes SPS et SPS-Psi}
+		\begin{itemize}
+			\item 
+			Application des formules closes:
+			\begin{itemize}
+				\item Multiplication par $1-X^d$: $\varphi(n)$ soustractions
+				\item Division par $1-X^d$... ATTENTION!!!\\
+				Seules $\varphi(n)$ additions sont nécessaires et non $\left(\varphi(n)\right)^2$
+			\end{itemize}
+			\item Algorithme simple avec une allocation mémoire unique pour $\Phi_n$.
+			\item... Mais tous les calculs sont effectués sur un tableau de taille $\varphi(n)$
+		\end{itemize}		
+		
+	\end{frame}
+
+	\begin{frame}
+	\frametitle{Algorithme SPS4}
+	Utilisation de la localité des formules initiales et de l'efficacité des formules closes\\
+	
+	Formules récursives de calcul des polynômes cyclotomiques:	
+	\begin{align*}
+		\Phi_n(X) &=\prod_{j=2}^{k} - \Psi_{m_j}(X^{e_j}) \prod_{j=1}^{k} (1-X^{n/p_j})^{-1}(1-X^n)\tag{3.17}\label{recurphi}\\
+		\Psi_{n}(X) &=\prod_{j=1}^{k} \Phi_{m_j}(X^{e_j})\tag{3.25}\label{recurpsi}
+	\end{align*}
+	où $n = p_1 \cdots p_k$ et pour $1 \le j \le k$, $e_j = p_{j+1} \cdots p_k$ et $m_j = p_1 \cdots p_{j-1}$\\
+	\textbf{Calcul sur des polynômes de degrés inférieurs au degré total}
+	
+	\end{frame}
+	
+	\section{Démonstration}
+	\begin{frame}
+		\frametitle{Démonstration}
+		
+		\href{https://jupyter.math.sorbonne-universite.fr/user/21304439/lab}{Notebooks Python SAGE \& module Python}
+		
+	\end{frame}
+	
+\end{document}
