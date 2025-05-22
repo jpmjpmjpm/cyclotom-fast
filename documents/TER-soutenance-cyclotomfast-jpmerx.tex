@@ -72,8 +72,7 @@
 	
 	\section{Introduction}
 	
-	\begin{frame}
-		\frametitle{Contenu du TER}
+	\begin{frame}{Contenu du TER}
 		\begin{itemize}
 			\item Analyser l'article d'Andrew Arnold et Michael Monagan sur le calcul rapide des polynômes cyclotomiques
 			\item Expliquer les méthodes et algorithmes utilisés
@@ -81,8 +80,7 @@
 		\end{itemize}
 	\end{frame}
 	
-	\begin{frame}
-		\frametitle{Définition des polynômes cyclotomiques}
+	\begin{frame}{Définition des polynômes cyclotomiques}
 		\begin{itemize}
 			\item Si $U_n$ est le groupe cyclique des racines $n$-ième complexes de l'unité, le polynôme cyclotomique $\Phi_n$ est:
 			$$\Phi_n(X) = \prod_{\zeta \in U^*_n} (X - \zeta) = \prod_{\substack{j=1\\ \pgcd(j,n)=1}}^n (X - e^{\frac{2 \pi i}{n}j})$$ où $U_n^* \subseteq U_n$ est l'ensemble des générateurs de $U_n$.
@@ -91,8 +89,7 @@
 		\end{itemize}
 	\end{frame}
 	
-	\begin{frame}
-		\frametitle{De l'importance des diviseurs de $n$}
+	\begin{frame}{De l'importance des diviseurs de $n$}
 		\begin{itemize}
 			\item $\Phi_n \in \mathbb Z[X]$ de degré $\varphi(n)$ où $\varphi$ est l'indicatrice d'Euler et:
 			$$P_n(X) = X^n-1 = \prod_{ d \mid n} \Phi_d(X)$$
@@ -105,8 +102,7 @@
 
 	\section{Un premier algorithme}
 
-	\begin{frame}
-		\frametitle{Restriction à $n$ produit de premiers impairs distincts}
+	\begin{frame}{Restriction à $n$ produit de premiers impairs distincts}
 		\begin{itemize}
 			\item Comme on a aussi: $$\Phi_{2n}(X) = \Phi_n(X^2) \text{ si } 2 \mid n \text{ et }\Phi_{2n}(X) = \Phi_n(-X) \text{ sinon}$$ $\implies$ il suffit de considérer $n$ produit de premiers impairs distincts.
 			\item D'où un premier algorithme possible pour $n = p_1^{e_1} \cdots p_k^{e_k}$:
@@ -119,10 +115,9 @@
 		\end{itemize}
 	\end{frame}
 
-	\section{Formules closes et algorithmes et algorithmes SPS}
+	\section{Formules closes et algorithmes SPS}
 
-	\begin{frame}
-		\frametitle{Formules closes}
+	\begin{frame}{Formules closes}
 		Si $\mu : \mathbb N^* \to \{-1, 0, 1\}\}$ est la fonction de Möbius:
 		\begin{displaymath}
 			\mu(n) = :
@@ -139,8 +134,7 @@
 		\end{align}
 	\end{frame}
 
-	\begin{frame}
-		\frametitle{Points critiques pour l'implémentation}
+	\begin{frame}{Points critiques pour l'implémentation}
 		\begin{itemize}
 			\item \textbf{RAPIDITÉ} $\implies$ type d'algorithme
 			\item \textbf{Taille mémoire}: pour $n = 3 \cdot 5 \cdot 7 \cdot 11 \cdot 13 \cdot 17 \cdot 19 \cdot 23 \cdot 29$, $\deg \Phi_n = 1,021,870,080$ et on obtient un polynôme nécessitant au moins 8 Go de mémoire.
@@ -149,8 +143,7 @@
 		\end{itemize}
 	\end{frame}
 
-	\begin{frame}
-		\frametitle{Algorithmes SPS et SPS-Psi}
+	\begin{frame}{Algorithmes SPS et SPS-Psi}
 		\begin{itemize}
 			\item 
 			Application des formules closes:
@@ -159,14 +152,13 @@
 				\item Division par $1-X^d$... ATTENTION!!!\\
 				Seules $\varphi(n)$ additions sont nécessaires et non $\left(\varphi(n)\right)^2$
 			\end{itemize}
-			\item Algorithme simple avec une allocation mémoire unique pour $\Phi_n$.
-			\item... Mais tous les calculs sont effectués sur un tableau de taille $\varphi(n)$
+			\item Algorithme simple avec une allocation mémoire unique pour $\Phi_n$
+			\item... mais tous les calculs sont effectués sur un tableau de taille $\varphi(n)$
 		\end{itemize}		
 		
 	\end{frame}
 
-	\begin{frame}
-	\frametitle{Algorithme SPS4}
+	\begin{frame}{Algorithme SPS4}
 	Utilisation de la localité des formules initiales et de l'efficacité des formules closes\\
 	
 	Formules récursives de calcul des polynômes cyclotomiques:	
@@ -178,10 +170,50 @@
 	\textbf{Calcul sur des polynômes de degrés inférieurs au degré total}
 	
 	\end{frame}
+
+	\begin{frame}{Implémentations SPS4}
+		Implémentations étudiées
+		\begin{itemize}
+			\item 
+			\textbf{SAGE} implémente directement les formules closes en Python + C pour le cœur des calculs
+			\item \textbf{SYMPY}(très lent) en reste aux divisions
+			\item Arnold et Monagan implémentent SPS4 en C (\textit{je n'ai pas testé leur programme})
+			\item \textbf{"La mienne"} implémente SPS4 en Python avec allocation mémoire pour chaque polynôme
+		\end{itemize}
+	\end{frame}
+
+	\section{Hauteur $A(n)$ des polynômes cyclotomiques}
+	
+	\begin{frame}{Importance dans un algorithme}
+		Choix à effectuer:
+		\begin{itemize}
+			\item Entiers de taille fixe ou pas?
+			\item Pré-calcul ou pas par un algorithme plus lent des $n$ qui obligent à changer de format d'entiers?
+			\item \textbf{Et quand est-il des calculs intermédiaires?}
+			\item Test possible dans les calculs de l'overflow
+		\end{itemize}
+		Options possibles:
+		\begin{itemize}
+			\item Limiter $n$...
+			\item Changer de représentation en cours de calculs
+			\item Calculs modulo des premiers et reconstitution
+			\item Entiers de longueur infinie
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Résultats théoriques sur $A(n)$}
+		\begin{itemize}
+			\item Pour $p < q$ premiers $A(pq) = 1$
+			\item $\limsup\limits_{n \to \infty} A(n) = \infty$ et les polynômes cyclotomiques ternaires suffisent
+			\item Tout entier est le coefficient d'un polynôme cyclotomique
+			\item $\limsup\limits_{n \to \infty} A(n) \le \exp(n^{\log 2 / \log \log n})$
+			\item Pour une infinité d'entiers $n$, $A(n) > \exp(n^{\log 2 / \log \log n})$
+		\end{itemize}		
+	\end{frame}
+		
 	
 	\section{Démonstration}
-	\begin{frame}
-		\frametitle{Démonstration}
+	\begin{frame}{Démonstration}
 		
 		\href{https://jupyter.math.sorbonne-universite.fr/user/21304439/lab}{Notebooks Python SAGE \& module Python}
 		
